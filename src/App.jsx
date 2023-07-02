@@ -10,6 +10,8 @@ import {
 } from "./Utils"
 import { POSTData } from "./Utils"
 
+
+
 export default function App(props) {
     //set up initial state with template
     const currentTemplate = props.currentTemplate
@@ -240,10 +242,19 @@ export default function App(props) {
                     setSessionDashXML("none")
                 }
             } else {
-                localStorage.removeItem("sessionServerIP")
-                document.querySelector(
-                    ".no-session-msg"
-                ).innerHTML = `Log into Streambox Cloud in Settings`
+                    // Define your CallSettings function
+                    window.CallSettings = function CallSettings()  
+                    {
+                        props.openSettings()
+                    }
+                    // Remove sessionServerIP from localStorage
+                    localStorage.removeItem("sessionServerIP");
+
+                    //  call openSettings function
+                    document.querySelector(".no-session-msg")
+                    .innerHTML = 
+                    //`Log into Streambox Cloud in <a href="#" onclick="event.preventDefault(); CallSettings();">Settings</a>`;
+                    'Log into Streambox Cloud in  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
             }
         }
 
