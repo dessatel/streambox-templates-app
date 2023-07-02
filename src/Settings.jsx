@@ -562,9 +562,8 @@ export default function Settings(props) {
 
     let serverList = []
 
-    if (isLocalDev) {
+    if (1 || isLocalDev) {
         serverList = [
-            "TL1",
             "LiveUS",
             "LiveUSEast",
             "LivePOST",
@@ -575,6 +574,8 @@ export default function Settings(props) {
             "LiveIN",
             "LiveSA",
             "LiveDE",
+            "TL3",
+            "TL1"
         ]
     } else {
         serverList = [
@@ -584,6 +585,7 @@ export default function Settings(props) {
             "LiveAU",
             "LiveIN",
             "LiveEU",
+            
         ]
     }
 

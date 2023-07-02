@@ -6,7 +6,7 @@
     "license": "MIT",
     "scripts": {
         "start": "vite",
-        "build": "vite build"
+        "build": "vite build --no-minify"
     },
     "dependencies": {
         "react": "^17.0.2",
