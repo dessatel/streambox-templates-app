@@ -7144,82 +7144,22 @@ function getRestEndpoint() {
   }
 }
 async function logout() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  let user;
-  let token2;
-  if (urlParams.get("user") && urlParams.get("token")) {
-    user = urlParams.get("user");
-    token2 = urlParams.get("token");
-  } else {
-    if (localStorage.getItem("user") && localStorage.getItem("token")) {
-      user = localStorage.getItem("user").toLowerCase();
-      token2 = localStorage.getItem("token");
-    }
-  }
-  const endpoint2 = location.origin;
-  let formData = new FormData();
-  formData.append("username", user.toLowerCase());
-  formData.append("token", token2);
-  formData.append("fromreact", 1);
-  formData.append("islogout", 1);
-  let response;
-  {
-    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
-      method: "POST",
-      body: formData
-    });
-  }
-  let json = await response.text();
-  let [logoutStatus] = JSON.parse(json);
-  if (logoutStatus === "logout success") {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    window.location = `${location.origin}/sbuiauth`;
-  } else {
-    alert("Something went wrong with the authentication server");
-  }
+  let response = await POSTData("../REST/sys/auth", {
+    command: "logout"
+  });
+  console.log(response);
+  window.location = `login.html`;
 }
 async function authenticate() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  let user;
-  let token2;
-  if (urlParams.get("user") && urlParams.get("token")) {
-    user = urlParams.get("user");
-    token2 = urlParams.get("token");
+  let response = await fetch("../REST/sys/auth", {
+    method: "POST"
+  });
+  if (response.status == 200) {
+    console.log("Authorized");
+    return 1;
   } else {
-    if (localStorage.getItem("user") && localStorage.getItem("user").toLowerCase() && localStorage.getItem("token")) {
-      user = localStorage.getItem("user").toLowerCase();
-      token2 = localStorage.getItem("token");
-    } else {
-      return false;
-    }
-  }
-  const endpoint2 = location.origin;
-  let formData = new FormData();
-  formData.append("username", user.toLowerCase());
-  formData.append("token", token2);
-  formData.append("fromreact", 1);
-  let response;
-  {
-    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
-      method: "POST",
-      body: formData
-    });
-  }
-  let json = await response.text();
-  let [loginStatus] = JSON.parse(json);
-  if (loginStatus === "login success") {
-    localStorage.setItem("user", user.toLowerCase());
-    localStorage.setItem("token", token2);
-    return true;
-  } else if (loginStatus === "login failure") {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    return false;
-  } else {
-    alert("Something went wrong with the authentication server");
+    console.log("NOT Authorized");
+    return 0;
   }
 }
 async function setNetwork1Api(enc_key, customPort, customHost) {
@@ -15351,7 +15291,7 @@ function App(props) {
       let authorized = await authenticate();
       if (!authorized) {
         {
-          window.location = `${endpoint2}/sbuiauth/`;
+          window.location = `login.html`;
         }
         return;
       }
@@ -15481,10 +15421,11 @@ function App(props) {
           setSessionDashXML("none");
         }
       } else {
+        window.CallSettings = function CallSettings() {
+          props.openSettings();
+        };
         localStorage.removeItem("sessionServerIP");
-        document.querySelector(
-          ".no-session-msg"
-        ).innerHTML = `Log into Streambox Cloud in Settings`;
+        document.querySelector(".no-session-msg").innerHTML = 'Log into Streambox Cloud in  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
       }
     }
     attemptLoginDashboard();

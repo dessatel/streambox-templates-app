@@ -86,7 +86,7 @@ export default function App(props) {
                 if (isLocalDev) {
                     window.location = "http://localhost:5005/sbuiauth/"
                 } else {
-                    window.location = `${endpoint}/sbuiauth/`
+                    window.location = `login.html` // new login page!
                 }
                 return
             }
