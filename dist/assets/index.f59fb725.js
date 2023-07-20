@@ -19140,15 +19140,16 @@ function Settings(props) {
       "LiveSA",
       "LiveDE",
       "TL3",
-      "TL1",
       ,
+      "TL1",
       "northflier",
       "northflier1",
       "northflier2",
       "northflier3",
       "northflier4",
       "northflier5",
-      "northflie6"
+      "northflier6",
+      "northflier7"
     ];
   }
   let serverOptions = serverList.map((server, index2) => /* @__PURE__ */ React$1.createElement("option", {
