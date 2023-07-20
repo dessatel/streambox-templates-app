@@ -574,7 +574,7 @@ export default function Settings(props) {
             "LiveIN",
             "LiveSA",
             "LiveDE",
-            "TL3",
+            "TL3"
             ,"TL1"
             ,"northflier"
             ,"northflier1"

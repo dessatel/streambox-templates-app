@@ -19140,7 +19140,6 @@ function Settings(props) {
       "LiveSA",
       "LiveDE",
       "TL3",
-      ,
       "TL1",
       "northflier",
       "northflier1",
