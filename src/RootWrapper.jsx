@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import App from "./App"
+import App from "./alx.App"
 import Navbar from "./components/Navbar"
 import Settings from "./Settings"
 import { isLocalDev, getRestEndpoint } from "./Utils"
