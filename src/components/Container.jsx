@@ -651,7 +651,7 @@ export default function Container(props) {
 			mappedFields = (
                 <ServerControl
                     tableset={31}
-                    server={localStorage.getItem("cloudServer") + localStorage.getItem("customServerPostfix")}
+                    server={localStorage.getItem("cloudServer") + (localStorage.getItem("customServerPostfix") || ".streambox.com" )}
                     login={localStorage.getItem("cloudLogin")}
                     password={localStorage.getItem("cloudPass")}
                 />
