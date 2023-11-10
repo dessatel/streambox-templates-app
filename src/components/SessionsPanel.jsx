@@ -150,9 +150,7 @@ export default function SessionsPanel(props) {
 
         async function getColorspaceOptions() {
             let response = await fetch(
-                `http://${localStorage.getItem(
-                    "cloudServer"
-                )}.streambox.com/ls/GetColorspaceListXML.php`
+                `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/GetColorspaceListXML.php`
             )
 
             const xmlResponse = await response.text()
@@ -673,9 +671,7 @@ export default function SessionsPanel(props) {
             ).selectedOptions[0].value
 
             let response = await fetch(
-                `http://${localStorage.getItem(
-                    "cloudServer"
-                )}.streambox.com/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+                `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
             )
             let result = await response.text()
 
@@ -706,9 +702,7 @@ export default function SessionsPanel(props) {
 
             sessionLdmpParams = JSON.stringify(sessionLdmpParams)
             let response = await fetch(
-                `http://${localStorage.getItem(
-                    "cloudServer"
-                )}.streambox.com/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+                `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
             )
             let result = await response.text()
 
@@ -729,9 +723,7 @@ export default function SessionsPanel(props) {
             let hashedPass = localStorage.getItem("cloudPass")
             const hashedChatPass = md5(chatPass)
             let response = await fetch(
-                `http://${localStorage.getItem(
-                    "cloudServer"
-                )}.streambox.com/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
+                `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
             )
             let result = await response.text()
 

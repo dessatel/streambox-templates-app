@@ -10,8 +10,6 @@ import {
 } from "./Utils"
 import { POSTData } from "./Utils"
 
-
-
 export default function App(props) {
     //set up initial state with template
     const currentTemplate = props.currentTemplate
@@ -86,7 +84,7 @@ export default function App(props) {
                 if (isLocalDev) {
                     window.location = "http://localhost:5005/sbuiauth/"
                 } else {
-                    window.location = `login.html` // new login page!
+                    window.location = `${endpoint}/sbuiauth/`
                 }
                 return
             }
@@ -218,9 +216,7 @@ export default function App(props) {
                         let login = localStorage.getItem("cloudLogin")
                         let hashedPass = localStorage.getItem("cloudPass")
                         let response = await fetch(
-                            `https://${localStorage.getItem(
-                                "cloudServer"
-                            )}.streambox.com/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
+                            `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
                             {
                                 method: "GET",
                                 signal: controller.signal,
@@ -242,19 +238,10 @@ export default function App(props) {
                     setSessionDashXML("none")
                 }
             } else {
-                    // Define your CallSettings function
-                    window.CallSettings = function CallSettings()  
-                    {
-                        props.openSettings()
-                    }
-                    // Remove sessionServerIP from localStorage
-                    localStorage.removeItem("sessionServerIP");
-
-                    //  call openSettings function
-                    document.querySelector(".no-session-msg")
-                    .innerHTML = 
-                    //`Log into Streambox Cloud in <a href="#" onclick="event.preventDefault(); CallSettings();">Settings</a>`;
-                    'Log into Streambox Cloud in  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
+                localStorage.removeItem("sessionServerIP")
+                document.querySelector(
+                    ".no-session-msg"
+                ).innerHTML = `Log into Streambox Cloud in Settings`
             }
         }
 
@@ -309,9 +296,7 @@ export default function App(props) {
                 //timeout if no signal for 10 seconds
                 const timeoutId = setTimeout(() => controller.abort(), 15000)
                 let response = await fetch(
-                    `https://${localStorage.getItem(
-                        "cloudServer"
-                    )}.streambox.com/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
+                    `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
                     {
                         method: "GET",
                         signal: controller.signal,

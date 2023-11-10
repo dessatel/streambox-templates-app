@@ -105,6 +105,36 @@ export default function Settings(props) {
         }
     }
 
+    const [needCustom, setNeedCustom] = useState(false);
+    const [strCustomServer, setStrCustomServer] = useState(localStorage.getItem("cloudServer")+localStorage.getItem("customServerPostfix"));//useState('ponies.and.unicorns.com');
+
+    const [strLogin, setStrLogin] = useState('');
+    const [strPassword, setStrPassword] = useState('');
+   
+//useState(localStorage.getItem("cloudServer")+localStorage.getItem("customServerPostfix"));
+
+    async function processCustom(e) {
+		setNeedCustom(e=="Custom");
+    }
+
+// states: needCustom, strCustomServer
+// storage: cloudServer (LivePost, LiveEU, etc) , cloudServerPostfix(.streambox.com/ls)
+// storage: cloudServer ("custom.ponies.com")   , cloudServerPostfix(/light)
+
+    async function processNewServer(e) {
+		if (needCustom) {
+			localStorage.setItem("cloudServer", strCustomServer);
+//			localStorage.setItem("customServerPostfix", "/light");
+			localStorage.setItem("customServerPostfix", "");
+		} else {
+			localStorage.setItem("cloudServer", e);
+//			localStorage.setItem("customServerPostfix", ".streambox.com/ls");
+			localStorage.setItem("customServerPostfix", ".streambox.com");
+		}
+    }
+
+
+
     async function changeDefaultTemplateWrapper(e) {
         e.preventDefault()
         let templateName = e.target[0].value
@@ -168,8 +198,8 @@ export default function Settings(props) {
 
     async function attemptLoginSubmit(e) {
         e.preventDefault()
-        const login = e.target[1].value
-        const hashedPass = md5(e.target[2].value)
+        const login = strLogin;//e.target[1].value
+        const hashedPass = md5(strPassword);//md5(e.target[2].value)
         const serverIndex = e.target[0].selectedIndex
         const chosenServer = serverList[serverIndex]
 
@@ -177,15 +207,15 @@ export default function Settings(props) {
             localStorage.removeItem("sessionDRM")
         }
 
-        localStorage.setItem("cloudServer", chosenServer)
+//        localStorage.setItem("cloudServer", chosenServer)
+    	processNewServer(chosenServer);
 
         const controller = new AbortController()
         //timeout if no signal for 15 seconds
         const timeoutId = setTimeout(() => controller.abort(), 15000)
+
         let response = await fetch(
-            `https://${localStorage.getItem(
-                "cloudServer"
-            )}.streambox.com/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+            `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
             {
                 method: "GET",
                 signal: controller.signal,
@@ -562,8 +592,9 @@ export default function Settings(props) {
 
     let serverList = []
 
-    if (1 || isLocalDev) {
+    if (isLocalDev) {
         serverList = [
+            "TL1",
             "LiveUS",
             "LiveUSEast",
             "LivePOST",
@@ -574,16 +605,7 @@ export default function Settings(props) {
             "LiveIN",
             "LiveSA",
             "LiveDE",
-            "TL3"
-            ,"TL1"
-            ,"northflier"
-            ,"northflier1"
-            ,"northflier2"
-            ,"northflier3"
-            ,"northflier4"
-            ,"northflier5"
-            ,"northflier6"
-            ,"northflier7"
+            "Custom",
         ]
     } else {
         serverList = [
@@ -593,7 +615,7 @@ export default function Settings(props) {
             "LiveAU",
             "LiveIN",
             "LiveEU",
-            
+            "Custom",
         ]
     }
 
@@ -626,10 +648,19 @@ export default function Settings(props) {
                                         />
                                     </label>
                                 </div>
-                                <select className="server-select">
+                                <select className="server-select" onChange={(e) => processCustom(e.target.value)}>
                                     {serverOptions}
                                 </select>
                             </div>
+                            { needCustom &&
+                            <input
+                                type="text"
+                                className="custom-server"
+                                value={strCustomServer}
+                                onChange={(e) => setStrCustomServer(e.target.value)}
+                            />
+                            }
+
                             <div className="settings-label">
                                 <label className="template-label">
                                     <h4>Streambox Cloud Login</h4>
@@ -645,11 +676,13 @@ export default function Settings(props) {
                             <input
                                 className="login-input"
                                 type="text"
+                                onChange={(e) => setStrLogin(e.target.value)}
                                 placeholder=" Username"
                             />
                             <input
                                 className="login-input"
                                 type="password"
+                                onChange={(e) => setStrPassword(e.target.value)}
                                 placeholder=" Password"
                             />
                             <input
