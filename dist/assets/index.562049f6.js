@@ -17965,8 +17965,10 @@ function App(props) {
         let hashedPass = localStorage.getItem("cloudPass");
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 15e3);
+        const server_url = `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`;
+        console.log(server_url);
         let response = await fetch(
-          `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
+          server_url,
           {
             method: "GET",
             signal: controller.signal,

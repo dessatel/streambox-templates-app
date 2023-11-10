@@ -295,8 +295,12 @@ export default function App(props) {
                 const controller = new AbortController()
                 //timeout if no signal for 10 seconds
                 const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+                const server_url = `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`;
+                console.log(server_url);
+
                 let response = await fetch(
-                    `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
+                    server_url,
                     {
                         method: "GET",
                         signal: controller.signal,
