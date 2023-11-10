@@ -8,6 +8,7 @@ function TableSessions({ url }) {
 
     const fetchData = async () => {
       try {
+//console.log(url);
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -16,6 +17,7 @@ function TableSessions({ url }) {
 
         const jsonData = xmlJs.xml2json(xmlData, { compact: true, spaces: 4 });
         setData(JSON.parse(jsonData));
+
 
       } catch (error) {
         setError(error.message);
