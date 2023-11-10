@@ -17977,7 +17977,8 @@ function App(props) {
             }
           }
         ).catch((e2) => {
-          document.querySelector(".no-session-msg").textContent = "The Server is Down...";
+         // document.querySelector(".no-session-msg").textContent = "The Server is Down...";
+         console.log(server_url);
         });
         const xmlResponse = await response.text();
         let parser = new DOMParser();
