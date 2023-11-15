@@ -7067,6 +7067,10 @@ function Button(props) {
   return button;
 }
 const endpoint$2 = location.origin;
+function getServerURL() {
+  let postfix2 = localStorage.getItem("customServerPostfix") === null ? "" : localStorage.getItem("customServerPostfix");
+  return localStorage.getItem("cloudServer") + postfix2;
+}
 function replaceJSONParams(endpoint2, object) {
   let objectEntries = Object.entries(object);
   if (objectEntries.length > 0) {
@@ -7144,22 +7148,82 @@ function getRestEndpoint() {
   }
 }
 async function logout() {
-  let response = await POSTData("../REST/sys/auth", {
-    command: "logout"
-  });
-  console.log(response);
-  window.location = `login.html`;
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  let user;
+  let token2;
+  if (urlParams.get("user") && urlParams.get("token")) {
+    user = urlParams.get("user");
+    token2 = urlParams.get("token");
+  } else {
+    if (localStorage.getItem("user") && localStorage.getItem("token")) {
+      user = localStorage.getItem("user").toLowerCase();
+      token2 = localStorage.getItem("token");
+    }
+  }
+  const endpoint2 = location.origin;
+  let formData = new FormData();
+  formData.append("username", user.toLowerCase());
+  formData.append("token", token2);
+  formData.append("fromreact", 1);
+  formData.append("islogout", 1);
+  let response;
+  {
+    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
+      method: "POST",
+      body: formData
+    });
+  }
+  let json = await response.text();
+  let [logoutStatus] = JSON.parse(json);
+  if (logoutStatus === "logout success") {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    window.location = `${location.origin}/sbuiauth`;
+  } else {
+    alert("Something went wrong with the authentication server");
+  }
 }
 async function authenticate() {
-  let response = await fetch("../REST/sys/auth", {
-    method: "POST"
-  });
-  if (response.status == 200) {
-    console.log("Authorized");
-    return 1;
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  let user;
+  let token2;
+  if (urlParams.get("user") && urlParams.get("token")) {
+    user = urlParams.get("user");
+    token2 = urlParams.get("token");
   } else {
-    console.log("NOT Authorized");
-    return 0;
+    if (localStorage.getItem("user") && localStorage.getItem("user").toLowerCase() && localStorage.getItem("token")) {
+      user = localStorage.getItem("user").toLowerCase();
+      token2 = localStorage.getItem("token");
+    } else {
+      return false;
+    }
+  }
+  const endpoint2 = location.origin;
+  let formData = new FormData();
+  formData.append("username", user.toLowerCase());
+  formData.append("token", token2);
+  formData.append("fromreact", 1);
+  let response;
+  {
+    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
+      method: "POST",
+      body: formData
+    });
+  }
+  let json = await response.text();
+  let [loginStatus] = JSON.parse(json);
+  if (loginStatus === "login success") {
+    localStorage.setItem("user", user.toLowerCase());
+    localStorage.setItem("token", token2);
+    return true;
+  } else if (loginStatus === "login failure") {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    return false;
+  } else {
+    alert("Something went wrong with the authentication server");
   }
 }
 async function setNetwork1Api(enc_key, customPort, customHost) {
@@ -7355,9 +7419,7 @@ async function attemptLogin() {
   const controller = new AbortController();
   setTimeout(() => controller.abort(), 15e3);
   let response = await fetch(
-    `https://${localStorage.getItem(
-      "cloudServer"
-    )}.streambox.com/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+    `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
     {
       method: "GET",
       signal: controller.signal,
@@ -18786,6 +18848,22 @@ function Settings(props) {
       alert("Template Applied");
     }
   }
+  const [needCustom, setNeedCustom] = react.exports.useState(false);
+  const [strCustomServer, setStrCustomServer] = react.exports.useState(getServerURL());
+  const [strLogin, setStrLogin] = react.exports.useState("");
+  const [strPassword, setStrPassword] = react.exports.useState("");
+  async function processCustom(e2) {
+    setNeedCustom(e2 == "Custom");
+  }
+  async function processNewServer(e2) {
+    if (needCustom) {
+      localStorage.setItem("cloudServer", strCustomServer);
+      localStorage.setItem("customServerPostfix", "");
+    } else {
+      localStorage.setItem("cloudServer", e2);
+      localStorage.setItem("customServerPostfix", ".streambox.com");
+    }
+  }
   async function changeDefaultTemplateWrapper(e2) {
     e2.preventDefault();
     let templateName = e2.target[0].value;
@@ -18824,20 +18902,18 @@ function Settings(props) {
   }
   async function attemptLoginSubmit(e2) {
     e2.preventDefault();
-    const login = e2.target[1].value;
-    const hashedPass = md5(e2.target[2].value);
+    const login = strLogin;
+    const hashedPass = md5(strPassword);
     const serverIndex = e2.target[0].selectedIndex;
     const chosenServer = serverList[serverIndex];
     if (chosenServer !== localStorage.getItem("cloudServer")) {
       localStorage.removeItem("sessionDRM");
     }
-    localStorage.setItem("cloudServer", chosenServer);
+    processNewServer(chosenServer);
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 15e3);
     let response = await fetch(
-      `https://${localStorage.getItem(
-        "cloudServer"
-      )}.streambox.com/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+      `https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
       {
         method: "GET",
         signal: controller.signal,
@@ -19129,26 +19205,13 @@ function Settings(props) {
   let serverList = [];
   {
     serverList = [
-      "LiveUS",
       "LiveUSEast",
       "LivePOST",
       "LiveJP",
       "LiveAU",
-      "LiveSG",
-      "LiveEU",
       "LiveIN",
-      "LiveSA",
-      "LiveDE",
-      "TL3",
-      "TL1",
-      "northflier",
-      "northflier1",
-      "northflier2",
-      "northflier3",
-      "northflier4",
-      "northflier5",
-      "northflier6",
-      "northflier7"
+      "LiveEU",
+      "Custom"
     ];
   }
   let serverOptions = serverList.map((server, index2) => /* @__PURE__ */ React$1.createElement("option", {
@@ -19176,8 +19239,14 @@ function Settings(props) {
     src: "../../images/information.png",
     "data-tip": "\n                            Select which cloud server to pull data from\n                        "
   }))), /* @__PURE__ */ React$1.createElement("select", {
-    className: "server-select"
-  }, serverOptions)), /* @__PURE__ */ React$1.createElement("div", {
+    className: "server-select",
+    onChange: (e2) => processCustom(e2.target.value)
+  }, serverOptions)), needCustom && /* @__PURE__ */ React$1.createElement("input", {
+    type: "text",
+    className: "custom-server",
+    value: strCustomServer,
+    onChange: (e2) => setStrCustomServer(e2.target.value)
+  }), /* @__PURE__ */ React$1.createElement("div", {
     className: "settings-label"
   }, /* @__PURE__ */ React$1.createElement("label", {
     className: "template-label"
@@ -19188,10 +19257,12 @@ function Settings(props) {
   }))), /* @__PURE__ */ React$1.createElement("input", {
     className: "login-input",
     type: "text",
+    onChange: (e2) => setStrLogin(e2.target.value),
     placeholder: " Username"
   }), /* @__PURE__ */ React$1.createElement("input", {
     className: "login-input",
     type: "password",
+    onChange: (e2) => setStrPassword(e2.target.value),
     placeholder: " Password"
   }), /* @__PURE__ */ React$1.createElement("input", {
     id: "login-submit-btn",
