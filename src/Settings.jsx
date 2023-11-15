@@ -214,7 +214,7 @@ export default function Settings(props) {
         //timeout if no signal for 15 seconds
         const timeoutId = setTimeout(() => controller.abort(), 15000)
 
-        // vevsion ALEXEY1015 
+        localStorage.setItem("ALEXEY1015", chosenServer)
         let response = await fetch(
             `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
             {

@@ -21352,6 +21352,7 @@ function Settings(props) {
     processNewServer(chosenServer);
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 15e3);
+    localStorage.setItem("ALEXEY1015", chosenServer);
     let response = await fetch(
       `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
       {
