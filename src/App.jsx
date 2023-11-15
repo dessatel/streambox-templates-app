@@ -12,6 +12,8 @@ import {
 import { POSTData } from "./Utils"
 
 export default function App(props) {
+    1
+    // vevsion ALEXEY1015 
     //set up initial state with template
     const currentTemplate = props.currentTemplate
     const navBtns = currentTemplate.template.navbar.routes
