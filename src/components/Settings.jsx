@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react"
 import "./styles/setting-style.css"
 import ReactTooltip from "react-tooltip"
-import { isLocalDev, md5, attemptLogin, debounce } from "./Utils"
+import { isLocalDev, md5, attemptLogin, debounce, getServerURL } from "./Utils"
 
 import Editor from "react-simple-code-editor"
 import { highlight, languages } from "prismjs/components/prism-core"
 import "prismjs/components/prism-clike"
 import "prismjs/components/prism-javascript"
 import "prismjs/themes/prism.css"
+
 
 export default function Settings(props) {
     const [templateOptions, setTemplateOptions] = useState([])
@@ -106,12 +107,12 @@ export default function Settings(props) {
     }
 
     const [needCustom, setNeedCustom] = useState(false);
-    const [strCustomServer, setStrCustomServer] = useState(localStorage.getItem("cloudServer")+localStorage.getItem("customServerPostfix")||".streambox.com");//useState('ponies.and.unicorns.com');
+    const [strCustomServer, setStrCustomServer] = useState(getServerURL());//useState('ponies.and.unicorns.com');
 
     const [strLogin, setStrLogin] = useState('');
     const [strPassword, setStrPassword] = useState('');
    
-//useState(localStorage.getItem("cloudServer")+(localStorage.getItem("customServerPostfix")||".streambox.com"));
+//useState(localStorage.getItem("cloudServer")+localStorage.getItem("customServerPostfix"));
 
     async function processCustom(e) {
 		setNeedCustom(e=="Custom");
@@ -215,7 +216,7 @@ export default function Settings(props) {
         const timeoutId = setTimeout(() => controller.abort(), 15000)
 
         let response = await fetch(
-            `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")||".streambox.com"}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+            `https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
             {
                 method: "GET",
                 signal: controller.signal,

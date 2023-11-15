@@ -7067,6 +7067,10 @@ function Button(props) {
   return button;
 }
 const endpoint$2 = location.origin;
+function getServerURL() {
+  let postfix2 = localStorage.getItem("customServerPostfix") === null ? "" : localStorage.getItem("customServerPostfix");
+  return localStorage.getItem("cloudServer") + postfix2;
+}
 function replaceJSONParams(endpoint2, object) {
   let objectEntries = Object.entries(object);
   if (objectEntries.length > 0) {
@@ -14260,7 +14264,7 @@ function SessionsPanel(props) {
   react.exports.useEffect(() => {
     async function getColorspaceOptions() {
       let response = await fetch(
-        `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/GetColorspaceListXML.php`
+        `http://${getServerURL()}/ls/GetColorspaceListXML.php`
       );
       const xmlResponse = await response.text();
       let parser = new DOMParser();
@@ -14596,7 +14600,7 @@ function SessionsPanel(props) {
         "set-colorspace-select"
       ).selectedOptions[0].value;
       let response = await fetch(
-        `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body result="success"/>\n') {
@@ -14620,7 +14624,7 @@ function SessionsPanel(props) {
       };
       sessionLdmpParams = JSON.stringify(sessionLdmpParams);
       let response = await fetch(
-        `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body session_ldmp_update_result="Updated LDMP parameters for session."/>\n') {
@@ -14636,7 +14640,7 @@ function SessionsPanel(props) {
       let hashedPass = localStorage.getItem("cloudPass");
       const hashedChatPass = md5(chatPass);
       let response = await fetch(
-        `http://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body result="success"/>\n') {
@@ -17734,7 +17738,7 @@ function Container(props) {
     } else if (containerType === "serverControl") {
       mappedFields = /* @__PURE__ */ React$1.createElement(ServerControl, {
         tableset: 31,
-        server: localStorage.getItem("cloudServer") + (localStorage.getItem("customServerPostfix") || ".streambox.com"),
+        server: getServerURL(),
         login: localStorage.getItem("cloudLogin"),
         password: localStorage.getItem("cloudPass")
       });
@@ -17901,7 +17905,7 @@ function App(props) {
             let login = localStorage.getItem("cloudLogin");
             let hashedPass = localStorage.getItem("cloudPass");
             let response = await fetch(
-              `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
+              `https://${getServerURL()}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
               {
                 method: "GET",
                 signal: controller.signal,
@@ -17965,10 +17969,8 @@ function App(props) {
         let hashedPass = localStorage.getItem("cloudPass");
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 15e3);
-        const server_url = `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix") || ".streambox.com"}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`;
-        console.log(server_url);
         let response = await fetch(
-          server_url,
+          `https://${getServerURL()}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
           {
             method: "GET",
             signal: controller.signal,

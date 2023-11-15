@@ -8,6 +8,11 @@ const endpoint = location.origin
 //     JS_PORT: "1880",
 // }
 
+export function getServerURL() {
+	let postfix = (localStorage.getItem("customServerPostfix")===null) ? "" : localStorage.getItem("customServerPostfix");
+	return localStorage.getItem("cloudServer") + postfix;
+}
+
 export function replaceJSONParams(endpoint, object) {
     let objectEntries = Object.entries(object)
     if (objectEntries.length > 0) {

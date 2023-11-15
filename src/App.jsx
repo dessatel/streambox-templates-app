@@ -7,6 +7,7 @@ import {
     isLocalDev,
     setNetwork1Api,
     replaceJSONParams,
+    getServerURL,
 } from "./Utils"
 import { POSTData } from "./Utils"
 
@@ -216,7 +217,7 @@ export default function App(props) {
                         let login = localStorage.getItem("cloudLogin")
                         let hashedPass = localStorage.getItem("cloudPass")
                         let response = await fetch(
-                            `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")||".streambox.com"}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
+                            `https://${getServerURL()}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
                             {
                                 method: "GET",
                                 signal: controller.signal,
@@ -295,12 +296,8 @@ export default function App(props) {
                 const controller = new AbortController()
                 //timeout if no signal for 10 seconds
                 const timeoutId = setTimeout(() => controller.abort(), 15000)
-
-                const server_url = `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")||".streambox.com"}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`;
-                console.log(server_url);
-
                 let response = await fetch(
-                    server_url,
+                    `https://${getServerURL()}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
                     {
                         method: "GET",
                         signal: controller.signal,

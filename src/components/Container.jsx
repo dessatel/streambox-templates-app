@@ -16,6 +16,7 @@ import {
     setDecoderIPToServerIP,
     setNetwork1Api,
     replaceJSONParams,
+    getServerURL,
 } from "../Utils"
 
 const endpoint = location.origin
@@ -651,7 +652,7 @@ export default function Container(props) {
 			mappedFields = (
                 <ServerControl
                     tableset={31}
-                    server={localStorage.getItem("cloudServer") + (localStorage.getItem("customServerPostfix") || ".streambox.com" )}
+                    server={getServerURL()}
                     login={localStorage.getItem("cloudLogin")}
                     password={localStorage.getItem("cloudPass")}
                 />
