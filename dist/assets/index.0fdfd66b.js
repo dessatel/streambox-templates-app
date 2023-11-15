@@ -21289,7 +21289,7 @@ function Settings(props) {
     }
   }
   const [needCustom, setNeedCustom] = react.exports.useState(false);
-  const [strCustomServer, setStrCustomServer] = react.exports.useState(localStorage.getItem("cloudServer") + localStorage.getItem("customServerPostfix"));
+  const [strCustomServer, setStrCustomServer] = react.exports.useState(getServerURL());
   const [strLogin, setStrLogin] = react.exports.useState("");
   const [strPassword, setStrPassword] = react.exports.useState("");
   async function processCustom(e2) {
@@ -21352,9 +21352,8 @@ function Settings(props) {
     processNewServer(chosenServer);
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 15e3);
-    localStorage.setItem("ALEXEY1015", chosenServer);
     let response = await fetch(
-      `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+      `https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
       {
         method: "GET",
         signal: controller.signal,
