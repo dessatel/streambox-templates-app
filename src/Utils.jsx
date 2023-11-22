@@ -83,7 +83,6 @@ export async function getPropertyFromAPI(cname, route, customHost) {
         }
     }
     let result = await response.json()
-
     return result.current_stat.filter((obj) => obj.cname === cname)[0].val
 }
 
@@ -126,53 +125,18 @@ export function getRestEndpoint() {
     }
 }
 
+
 export async function logout() {
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    let user
-    let token
 
-    if (urlParams.get("user") && urlParams.get("token")) {
-        user = urlParams.get("user")
-        token = urlParams.get("token")
-    } else {
-        //check local storage
-        if (localStorage.getItem("user") && localStorage.getItem("token")) {
-            user = localStorage.getItem("user").toLowerCase()
-            token = localStorage.getItem("token")
-        }
-    }
-    const endpoint = location.origin
 
-    let formData = new FormData()
-    formData.append("username", user.toLowerCase())
-    formData.append("token", token)
-    formData.append("fromreact", 1)
-    formData.append("islogout", 1)
+    let response=await POSTData("../REST/sys/auth", {
+            command: "logout"
+    });
 
-    let response
-    if (isLocalDev) {
-        response = await fetch("http://localhost:5005" + "/sbuiauth/auth.php", {
-            method: "POST",
-            body: formData,
-        })
-    } else {
-        response = await fetch(endpoint + "/sbuiauth/auth.php", {
-            method: "POST",
-            body: formData,
-        })
-    }
-
-    let json = await response.text()
-    let [logoutStatus] = JSON.parse(json)
-
-    if (logoutStatus === "logout success") {
-        localStorage.removeItem("user")
-        localStorage.removeItem("token")
-        window.location = `${location.origin}/sbuiauth`
-    } else {
-        alert("Something went wrong with the authentication server")
-    }
+    console.log(response);
+//    debugger;
+    window.location = `login.html` // new login page!
+  
 }
 
 //check if any url params present for userid
@@ -181,63 +145,22 @@ export async function logout() {
 //if they match, then set local storage with these vals
 //logout should destroy local storage for userid and token
 export async function authenticate() {
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    let user
-    let token
 
-    if (urlParams.get("user") && urlParams.get("token")) {
-        user = urlParams.get("user")
-        token = urlParams.get("token")
-    } else {
-        //check local storage
-        if (
-            localStorage.getItem("user") &&
-            localStorage.getItem("user").toLowerCase() &&
-            localStorage.getItem("token")
-        ) {
-            user = localStorage.getItem("user").toLowerCase()
-            token = localStorage.getItem("token")
-        } else {
-            return false
-        }
+    let response = await fetch("../REST/sys/auth", {
+        method: "POST"
+    })
+
+
+    if (response.status == 200) { // authorized
+        console.log("Authorized");
+        return 1;
+    } else { // status: 401
+        console.log("NOT Authorized");
+        // redirect to login page
+        return 0;
     }
 
-    const endpoint = location.origin
-
-    let formData = new FormData()
-    formData.append("username", user.toLowerCase())
-    formData.append("token", token)
-    formData.append("fromreact", 1)
-
-    let response
-    if (isLocalDev) {
-        response = await fetch("http://localhost:5005" + "/sbuiauth/auth.php", {
-            method: "POST",
-            body: formData,
-        })
-    } else {
-        response = await fetch(endpoint + "/sbuiauth/auth.php", {
-            method: "POST",
-            body: formData,
-        })
-    }
-
-    let json = await response.text()
-    let [loginStatus] = JSON.parse(json)
-
-    if (loginStatus === "login success") {
-        //set local storage
-        localStorage.setItem("user", user.toLowerCase())
-        localStorage.setItem("token", token)
-        return true
-    } else if (loginStatus === "login failure") {
-        localStorage.removeItem("user")
-        localStorage.removeItem("token")
-        return false
-    } else {
-        alert("Something went wrong with the authentication server")
-    }
+ 
 }
 
 export async function setNetwork1Api(enc_key, customPort, customHost) {
@@ -503,7 +426,7 @@ export async function attemptLogin() {
     //timeout if no signal for 15 seconds
     const timeoutId = setTimeout(() => controller.abort(), 15000)
     let response = await fetch(
-        `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+		`https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
         {
             method: "GET",
             signal: controller.signal,

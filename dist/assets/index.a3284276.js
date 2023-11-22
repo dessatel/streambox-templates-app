@@ -7148,82 +7148,22 @@ function getRestEndpoint() {
   }
 }
 async function logout() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  let user;
-  let token2;
-  if (urlParams.get("user") && urlParams.get("token")) {
-    user = urlParams.get("user");
-    token2 = urlParams.get("token");
-  } else {
-    if (localStorage.getItem("user") && localStorage.getItem("token")) {
-      user = localStorage.getItem("user").toLowerCase();
-      token2 = localStorage.getItem("token");
-    }
-  }
-  const endpoint2 = location.origin;
-  let formData = new FormData();
-  formData.append("username", user.toLowerCase());
-  formData.append("token", token2);
-  formData.append("fromreact", 1);
-  formData.append("islogout", 1);
-  let response;
-  {
-    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
-      method: "POST",
-      body: formData
-    });
-  }
-  let json = await response.text();
-  let [logoutStatus] = JSON.parse(json);
-  if (logoutStatus === "logout success") {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    window.location = `${location.origin}/sbuiauth`;
-  } else {
-    alert("Something went wrong with the authentication server");
-  }
+  let response = await POSTData("../REST/sys/auth", {
+    command: "logout"
+  });
+  console.log(response);
+  window.location = `login.html`;
 }
 async function authenticate() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  let user;
-  let token2;
-  if (urlParams.get("user") && urlParams.get("token")) {
-    user = urlParams.get("user");
-    token2 = urlParams.get("token");
+  let response = await fetch("../REST/sys/auth", {
+    method: "POST"
+  });
+  if (response.status == 200) {
+    console.log("Authorized");
+    return 1;
   } else {
-    if (localStorage.getItem("user") && localStorage.getItem("user").toLowerCase() && localStorage.getItem("token")) {
-      user = localStorage.getItem("user").toLowerCase();
-      token2 = localStorage.getItem("token");
-    } else {
-      return false;
-    }
-  }
-  const endpoint2 = location.origin;
-  let formData = new FormData();
-  formData.append("username", user.toLowerCase());
-  formData.append("token", token2);
-  formData.append("fromreact", 1);
-  let response;
-  {
-    response = await fetch(endpoint2 + "/sbuiauth/auth.php", {
-      method: "POST",
-      body: formData
-    });
-  }
-  let json = await response.text();
-  let [loginStatus] = JSON.parse(json);
-  if (loginStatus === "login success") {
-    localStorage.setItem("user", user.toLowerCase());
-    localStorage.setItem("token", token2);
-    return true;
-  } else if (loginStatus === "login failure") {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    return false;
-  } else {
-    alert("Something went wrong with the authentication server");
+    console.log("NOT Authorized");
+    return 0;
   }
 }
 async function setNetwork1Api(enc_key, customPort, customHost) {
@@ -7419,7 +7359,7 @@ async function attemptLogin() {
   const controller = new AbortController();
   setTimeout(() => controller.abort(), 15e3);
   let response = await fetch(
-    `https://${localStorage.getItem("cloudServer")}${localStorage.getItem("customServerPostfix")}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
+    `https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
     {
       method: "GET",
       signal: controller.signal,
@@ -9487,7 +9427,7 @@ function classNames(prefix2, state, className2) {
   }).join(" ");
 }
 var cleanValue = function cleanValue2(value) {
-  if (isArray$1(value))
+  if (isArray$4(value))
     return value.filter(Boolean);
   if (_typeof(value) === "object" && value !== null)
     return [value];
@@ -9608,21 +9548,21 @@ function isMobileDevice() {
   }
 }
 var passiveOptionAccessed = false;
-var options = {
+var options$1 = {
   get passive() {
     return passiveOptionAccessed = true;
   }
 };
 var w = typeof window !== "undefined" ? window : {};
 if (w.addEventListener && w.removeEventListener) {
-  w.addEventListener("p", noop, options);
+  w.addEventListener("p", noop, options$1);
   w.removeEventListener("p", noop, false);
 }
 var supportsPassiveEvents = passiveOptionAccessed;
 function notNullish(item) {
   return item != null;
 }
-function isArray$1(arg) {
+function isArray$4(arg) {
   return Array.isArray(arg);
 }
 function valueTernary(isMulti, multiValue, singleValue) {
@@ -12765,7 +12705,7 @@ function DecoderInfo({ decoderInfo }) {
     className: "disconnect-btn"
   }, "Disconnect"));
 }
-var lib$1 = { exports: {} };
+var lib$2 = { exports: {} };
 var Modal$2 = {};
 var propTypes = { exports: {} };
 var ReactPropTypesSecret$1 = "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED";
@@ -14155,8 +14095,8 @@ Modal$2.default = Modal$1;
   }
   exports.default = _Modal2.default;
   module.exports = exports["default"];
-})(lib$1, lib$1.exports);
-var Modal = /* @__PURE__ */ getDefaultExportFromCjs(lib$1.exports);
+})(lib$2, lib$2.exports);
+var Modal = /* @__PURE__ */ getDefaultExportFromCjs(lib$2.exports);
 function SessionsPanel(props) {
   let [showEmailPage, setShowEmailPage] = react.exports.useState(false);
   let [selectedOptions, setSelectedOptions] = react.exports.useState([]);
@@ -14264,9 +14204,7 @@ function SessionsPanel(props) {
   react.exports.useEffect(() => {
     async function getColorspaceOptions() {
       let response = await fetch(
-        `http://${localStorage.getItem(
-          "cloudServer"
-        )}.streambox.com/ls/GetColorspaceListXML.php`
+        `http://${getServerURL()}/ls/GetColorspaceListXML.php`
       );
       const xmlResponse = await response.text();
       let parser = new DOMParser();
@@ -14602,9 +14540,7 @@ function SessionsPanel(props) {
         "set-colorspace-select"
       ).selectedOptions[0].value;
       let response = await fetch(
-        `http://${localStorage.getItem(
-          "cloudServer"
-        )}.streambox.com/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetColorspaceXML.php?colorspace_id=${colorspaceId}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body result="success"/>\n') {
@@ -14628,9 +14564,7 @@ function SessionsPanel(props) {
       };
       sessionLdmpParams = JSON.stringify(sessionLdmpParams);
       let response = await fetch(
-        `http://${localStorage.getItem(
-          "cloudServer"
-        )}.streambox.com/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetSessionLdmpXML.php?session_ldmp_params=${sessionLdmpParams}&session_id=${sessionId}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body session_ldmp_update_result="Updated LDMP parameters for session."/>\n') {
@@ -14646,9 +14580,7 @@ function SessionsPanel(props) {
       let hashedPass = localStorage.getItem("cloudPass");
       const hashedChatPass = md5(chatPass);
       let response = await fetch(
-        `http://${localStorage.getItem(
-          "cloudServer"
-        )}.streambox.com/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
+        `http://${getServerURL()}/ls/SetChatPassXML.php?hashed_chat_pass=${hashedChatPass}&enc_key=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`
       );
       let result = await response.text();
       if (result === '<?xml version="1.0" encoding="UTF-8"?>\n<body result="success"/>\n') {
@@ -14831,6 +14763,2452 @@ function SessionsPanel(props) {
       className: "no-session-msg"
     }, "Session DRM ", localStorage.getItem("sessionDRM"), " ", "is not found")));
   }
+}
+var sax$1 = {};
+var __viteBrowserExternal = {};
+var __viteBrowserExternal$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  "default": __viteBrowserExternal
+}, Symbol.toStringTag, { value: "Module" }));
+var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
+(function(exports) {
+  (function(sax2) {
+    sax2.parser = function(strict, opt) {
+      return new SAXParser(strict, opt);
+    };
+    sax2.SAXParser = SAXParser;
+    sax2.SAXStream = SAXStream;
+    sax2.createStream = createStream;
+    sax2.MAX_BUFFER_LENGTH = 64 * 1024;
+    var buffers = [
+      "comment",
+      "sgmlDecl",
+      "textNode",
+      "tagName",
+      "doctype",
+      "procInstName",
+      "procInstBody",
+      "entity",
+      "attribName",
+      "attribValue",
+      "cdata",
+      "script"
+    ];
+    sax2.EVENTS = [
+      "text",
+      "processinginstruction",
+      "sgmldeclaration",
+      "doctype",
+      "comment",
+      "opentagstart",
+      "attribute",
+      "opentag",
+      "closetag",
+      "opencdata",
+      "cdata",
+      "closecdata",
+      "error",
+      "end",
+      "ready",
+      "script",
+      "opennamespace",
+      "closenamespace"
+    ];
+    function SAXParser(strict, opt) {
+      if (!(this instanceof SAXParser)) {
+        return new SAXParser(strict, opt);
+      }
+      var parser = this;
+      clearBuffers(parser);
+      parser.q = parser.c = "";
+      parser.bufferCheckPosition = sax2.MAX_BUFFER_LENGTH;
+      parser.opt = opt || {};
+      parser.opt.lowercase = parser.opt.lowercase || parser.opt.lowercasetags;
+      parser.looseCase = parser.opt.lowercase ? "toLowerCase" : "toUpperCase";
+      parser.tags = [];
+      parser.closed = parser.closedRoot = parser.sawRoot = false;
+      parser.tag = parser.error = null;
+      parser.strict = !!strict;
+      parser.noscript = !!(strict || parser.opt.noscript);
+      parser.state = S2.BEGIN;
+      parser.strictEntities = parser.opt.strictEntities;
+      parser.ENTITIES = parser.strictEntities ? Object.create(sax2.XML_ENTITIES) : Object.create(sax2.ENTITIES);
+      parser.attribList = [];
+      if (parser.opt.xmlns) {
+        parser.ns = Object.create(rootNS);
+      }
+      parser.trackPosition = parser.opt.position !== false;
+      if (parser.trackPosition) {
+        parser.position = parser.line = parser.column = 0;
+      }
+      emit(parser, "onready");
+    }
+    if (!Object.create) {
+      Object.create = function(o) {
+        function F2() {
+        }
+        F2.prototype = o;
+        var newf = new F2();
+        return newf;
+      };
+    }
+    if (!Object.keys) {
+      Object.keys = function(o) {
+        var a = [];
+        for (var i2 in o)
+          if (o.hasOwnProperty(i2))
+            a.push(i2);
+        return a;
+      };
+    }
+    function checkBufferLength(parser) {
+      var maxAllowed = Math.max(sax2.MAX_BUFFER_LENGTH, 10);
+      var maxActual = 0;
+      for (var i2 = 0, l2 = buffers.length; i2 < l2; i2++) {
+        var len = parser[buffers[i2]].length;
+        if (len > maxAllowed) {
+          switch (buffers[i2]) {
+            case "textNode":
+              closeText(parser);
+              break;
+            case "cdata":
+              emitNode(parser, "oncdata", parser.cdata);
+              parser.cdata = "";
+              break;
+            case "script":
+              emitNode(parser, "onscript", parser.script);
+              parser.script = "";
+              break;
+            default:
+              error(parser, "Max buffer length exceeded: " + buffers[i2]);
+          }
+        }
+        maxActual = Math.max(maxActual, len);
+      }
+      var m2 = sax2.MAX_BUFFER_LENGTH - maxActual;
+      parser.bufferCheckPosition = m2 + parser.position;
+    }
+    function clearBuffers(parser) {
+      for (var i2 = 0, l2 = buffers.length; i2 < l2; i2++) {
+        parser[buffers[i2]] = "";
+      }
+    }
+    function flushBuffers(parser) {
+      closeText(parser);
+      if (parser.cdata !== "") {
+        emitNode(parser, "oncdata", parser.cdata);
+        parser.cdata = "";
+      }
+      if (parser.script !== "") {
+        emitNode(parser, "onscript", parser.script);
+        parser.script = "";
+      }
+    }
+    SAXParser.prototype = {
+      end: function() {
+        end(this);
+      },
+      write,
+      resume: function() {
+        this.error = null;
+        return this;
+      },
+      close: function() {
+        return this.write(null);
+      },
+      flush: function() {
+        flushBuffers(this);
+      }
+    };
+    var Stream;
+    try {
+      Stream = require("stream").Stream;
+    } catch (ex) {
+      Stream = function() {
+      };
+    }
+    if (!Stream)
+      Stream = function() {
+      };
+    var streamWraps = sax2.EVENTS.filter(function(ev) {
+      return ev !== "error" && ev !== "end";
+    });
+    function createStream(strict, opt) {
+      return new SAXStream(strict, opt);
+    }
+    function SAXStream(strict, opt) {
+      if (!(this instanceof SAXStream)) {
+        return new SAXStream(strict, opt);
+      }
+      Stream.apply(this);
+      this._parser = new SAXParser(strict, opt);
+      this.writable = true;
+      this.readable = true;
+      var me2 = this;
+      this._parser.onend = function() {
+        me2.emit("end");
+      };
+      this._parser.onerror = function(er) {
+        me2.emit("error", er);
+        me2._parser.error = null;
+      };
+      this._decoder = null;
+      streamWraps.forEach(function(ev) {
+        Object.defineProperty(me2, "on" + ev, {
+          get: function() {
+            return me2._parser["on" + ev];
+          },
+          set: function(h2) {
+            if (!h2) {
+              me2.removeAllListeners(ev);
+              me2._parser["on" + ev] = h2;
+              return h2;
+            }
+            me2.on(ev, h2);
+          },
+          enumerable: true,
+          configurable: false
+        });
+      });
+    }
+    SAXStream.prototype = Object.create(Stream.prototype, {
+      constructor: {
+        value: SAXStream
+      }
+    });
+    SAXStream.prototype.write = function(data2) {
+      if (typeof Buffer === "function" && typeof Buffer.isBuffer === "function" && Buffer.isBuffer(data2)) {
+        if (!this._decoder) {
+          var SD = require$$0.StringDecoder;
+          this._decoder = new SD("utf8");
+        }
+        data2 = this._decoder.write(data2);
+      }
+      this._parser.write(data2.toString());
+      this.emit("data", data2);
+      return true;
+    };
+    SAXStream.prototype.end = function(chunk) {
+      if (chunk && chunk.length) {
+        this.write(chunk);
+      }
+      this._parser.end();
+      return true;
+    };
+    SAXStream.prototype.on = function(ev, handler) {
+      var me2 = this;
+      if (!me2._parser["on" + ev] && streamWraps.indexOf(ev) !== -1) {
+        me2._parser["on" + ev] = function() {
+          var args = arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments);
+          args.splice(0, 0, ev);
+          me2.emit.apply(me2, args);
+        };
+      }
+      return Stream.prototype.on.call(me2, ev, handler);
+    };
+    var CDATA = "[CDATA[";
+    var DOCTYPE = "DOCTYPE";
+    var XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
+    var XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/";
+    var rootNS = { xml: XML_NAMESPACE, xmlns: XMLNS_NAMESPACE };
+    var nameStart = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
+    var nameBody = /[:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/;
+    var entityStart = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
+    var entityBody = /[#:_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u00B7\u0300-\u036F\u203F-\u2040.\d-]/;
+    function isWhitespace(c2) {
+      return c2 === " " || c2 === "\n" || c2 === "\r" || c2 === "	";
+    }
+    function isQuote(c2) {
+      return c2 === '"' || c2 === "'";
+    }
+    function isAttribEnd(c2) {
+      return c2 === ">" || isWhitespace(c2);
+    }
+    function isMatch(regex, c2) {
+      return regex.test(c2);
+    }
+    function notMatch(regex, c2) {
+      return !isMatch(regex, c2);
+    }
+    var S2 = 0;
+    sax2.STATE = {
+      BEGIN: S2++,
+      BEGIN_WHITESPACE: S2++,
+      TEXT: S2++,
+      TEXT_ENTITY: S2++,
+      OPEN_WAKA: S2++,
+      SGML_DECL: S2++,
+      SGML_DECL_QUOTED: S2++,
+      DOCTYPE: S2++,
+      DOCTYPE_QUOTED: S2++,
+      DOCTYPE_DTD: S2++,
+      DOCTYPE_DTD_QUOTED: S2++,
+      COMMENT_STARTING: S2++,
+      COMMENT: S2++,
+      COMMENT_ENDING: S2++,
+      COMMENT_ENDED: S2++,
+      CDATA: S2++,
+      CDATA_ENDING: S2++,
+      CDATA_ENDING_2: S2++,
+      PROC_INST: S2++,
+      PROC_INST_BODY: S2++,
+      PROC_INST_ENDING: S2++,
+      OPEN_TAG: S2++,
+      OPEN_TAG_SLASH: S2++,
+      ATTRIB: S2++,
+      ATTRIB_NAME: S2++,
+      ATTRIB_NAME_SAW_WHITE: S2++,
+      ATTRIB_VALUE: S2++,
+      ATTRIB_VALUE_QUOTED: S2++,
+      ATTRIB_VALUE_CLOSED: S2++,
+      ATTRIB_VALUE_UNQUOTED: S2++,
+      ATTRIB_VALUE_ENTITY_Q: S2++,
+      ATTRIB_VALUE_ENTITY_U: S2++,
+      CLOSE_TAG: S2++,
+      CLOSE_TAG_SAW_WHITE: S2++,
+      SCRIPT: S2++,
+      SCRIPT_ENDING: S2++
+    };
+    sax2.XML_ENTITIES = {
+      "amp": "&",
+      "gt": ">",
+      "lt": "<",
+      "quot": '"',
+      "apos": "'"
+    };
+    sax2.ENTITIES = {
+      "amp": "&",
+      "gt": ">",
+      "lt": "<",
+      "quot": '"',
+      "apos": "'",
+      "AElig": 198,
+      "Aacute": 193,
+      "Acirc": 194,
+      "Agrave": 192,
+      "Aring": 197,
+      "Atilde": 195,
+      "Auml": 196,
+      "Ccedil": 199,
+      "ETH": 208,
+      "Eacute": 201,
+      "Ecirc": 202,
+      "Egrave": 200,
+      "Euml": 203,
+      "Iacute": 205,
+      "Icirc": 206,
+      "Igrave": 204,
+      "Iuml": 207,
+      "Ntilde": 209,
+      "Oacute": 211,
+      "Ocirc": 212,
+      "Ograve": 210,
+      "Oslash": 216,
+      "Otilde": 213,
+      "Ouml": 214,
+      "THORN": 222,
+      "Uacute": 218,
+      "Ucirc": 219,
+      "Ugrave": 217,
+      "Uuml": 220,
+      "Yacute": 221,
+      "aacute": 225,
+      "acirc": 226,
+      "aelig": 230,
+      "agrave": 224,
+      "aring": 229,
+      "atilde": 227,
+      "auml": 228,
+      "ccedil": 231,
+      "eacute": 233,
+      "ecirc": 234,
+      "egrave": 232,
+      "eth": 240,
+      "euml": 235,
+      "iacute": 237,
+      "icirc": 238,
+      "igrave": 236,
+      "iuml": 239,
+      "ntilde": 241,
+      "oacute": 243,
+      "ocirc": 244,
+      "ograve": 242,
+      "oslash": 248,
+      "otilde": 245,
+      "ouml": 246,
+      "szlig": 223,
+      "thorn": 254,
+      "uacute": 250,
+      "ucirc": 251,
+      "ugrave": 249,
+      "uuml": 252,
+      "yacute": 253,
+      "yuml": 255,
+      "copy": 169,
+      "reg": 174,
+      "nbsp": 160,
+      "iexcl": 161,
+      "cent": 162,
+      "pound": 163,
+      "curren": 164,
+      "yen": 165,
+      "brvbar": 166,
+      "sect": 167,
+      "uml": 168,
+      "ordf": 170,
+      "laquo": 171,
+      "not": 172,
+      "shy": 173,
+      "macr": 175,
+      "deg": 176,
+      "plusmn": 177,
+      "sup1": 185,
+      "sup2": 178,
+      "sup3": 179,
+      "acute": 180,
+      "micro": 181,
+      "para": 182,
+      "middot": 183,
+      "cedil": 184,
+      "ordm": 186,
+      "raquo": 187,
+      "frac14": 188,
+      "frac12": 189,
+      "frac34": 190,
+      "iquest": 191,
+      "times": 215,
+      "divide": 247,
+      "OElig": 338,
+      "oelig": 339,
+      "Scaron": 352,
+      "scaron": 353,
+      "Yuml": 376,
+      "fnof": 402,
+      "circ": 710,
+      "tilde": 732,
+      "Alpha": 913,
+      "Beta": 914,
+      "Gamma": 915,
+      "Delta": 916,
+      "Epsilon": 917,
+      "Zeta": 918,
+      "Eta": 919,
+      "Theta": 920,
+      "Iota": 921,
+      "Kappa": 922,
+      "Lambda": 923,
+      "Mu": 924,
+      "Nu": 925,
+      "Xi": 926,
+      "Omicron": 927,
+      "Pi": 928,
+      "Rho": 929,
+      "Sigma": 931,
+      "Tau": 932,
+      "Upsilon": 933,
+      "Phi": 934,
+      "Chi": 935,
+      "Psi": 936,
+      "Omega": 937,
+      "alpha": 945,
+      "beta": 946,
+      "gamma": 947,
+      "delta": 948,
+      "epsilon": 949,
+      "zeta": 950,
+      "eta": 951,
+      "theta": 952,
+      "iota": 953,
+      "kappa": 954,
+      "lambda": 955,
+      "mu": 956,
+      "nu": 957,
+      "xi": 958,
+      "omicron": 959,
+      "pi": 960,
+      "rho": 961,
+      "sigmaf": 962,
+      "sigma": 963,
+      "tau": 964,
+      "upsilon": 965,
+      "phi": 966,
+      "chi": 967,
+      "psi": 968,
+      "omega": 969,
+      "thetasym": 977,
+      "upsih": 978,
+      "piv": 982,
+      "ensp": 8194,
+      "emsp": 8195,
+      "thinsp": 8201,
+      "zwnj": 8204,
+      "zwj": 8205,
+      "lrm": 8206,
+      "rlm": 8207,
+      "ndash": 8211,
+      "mdash": 8212,
+      "lsquo": 8216,
+      "rsquo": 8217,
+      "sbquo": 8218,
+      "ldquo": 8220,
+      "rdquo": 8221,
+      "bdquo": 8222,
+      "dagger": 8224,
+      "Dagger": 8225,
+      "bull": 8226,
+      "hellip": 8230,
+      "permil": 8240,
+      "prime": 8242,
+      "Prime": 8243,
+      "lsaquo": 8249,
+      "rsaquo": 8250,
+      "oline": 8254,
+      "frasl": 8260,
+      "euro": 8364,
+      "image": 8465,
+      "weierp": 8472,
+      "real": 8476,
+      "trade": 8482,
+      "alefsym": 8501,
+      "larr": 8592,
+      "uarr": 8593,
+      "rarr": 8594,
+      "darr": 8595,
+      "harr": 8596,
+      "crarr": 8629,
+      "lArr": 8656,
+      "uArr": 8657,
+      "rArr": 8658,
+      "dArr": 8659,
+      "hArr": 8660,
+      "forall": 8704,
+      "part": 8706,
+      "exist": 8707,
+      "empty": 8709,
+      "nabla": 8711,
+      "isin": 8712,
+      "notin": 8713,
+      "ni": 8715,
+      "prod": 8719,
+      "sum": 8721,
+      "minus": 8722,
+      "lowast": 8727,
+      "radic": 8730,
+      "prop": 8733,
+      "infin": 8734,
+      "ang": 8736,
+      "and": 8743,
+      "or": 8744,
+      "cap": 8745,
+      "cup": 8746,
+      "int": 8747,
+      "there4": 8756,
+      "sim": 8764,
+      "cong": 8773,
+      "asymp": 8776,
+      "ne": 8800,
+      "equiv": 8801,
+      "le": 8804,
+      "ge": 8805,
+      "sub": 8834,
+      "sup": 8835,
+      "nsub": 8836,
+      "sube": 8838,
+      "supe": 8839,
+      "oplus": 8853,
+      "otimes": 8855,
+      "perp": 8869,
+      "sdot": 8901,
+      "lceil": 8968,
+      "rceil": 8969,
+      "lfloor": 8970,
+      "rfloor": 8971,
+      "lang": 9001,
+      "rang": 9002,
+      "loz": 9674,
+      "spades": 9824,
+      "clubs": 9827,
+      "hearts": 9829,
+      "diams": 9830
+    };
+    Object.keys(sax2.ENTITIES).forEach(function(key) {
+      var e2 = sax2.ENTITIES[key];
+      var s2 = typeof e2 === "number" ? String.fromCharCode(e2) : e2;
+      sax2.ENTITIES[key] = s2;
+    });
+    for (var s in sax2.STATE) {
+      sax2.STATE[sax2.STATE[s]] = s;
+    }
+    S2 = sax2.STATE;
+    function emit(parser, event, data2) {
+      parser[event] && parser[event](data2);
+    }
+    function emitNode(parser, nodeType, data2) {
+      if (parser.textNode)
+        closeText(parser);
+      emit(parser, nodeType, data2);
+    }
+    function closeText(parser) {
+      parser.textNode = textopts(parser.opt, parser.textNode);
+      if (parser.textNode)
+        emit(parser, "ontext", parser.textNode);
+      parser.textNode = "";
+    }
+    function textopts(opt, text) {
+      if (opt.trim)
+        text = text.trim();
+      if (opt.normalize)
+        text = text.replace(/\s+/g, " ");
+      return text;
+    }
+    function error(parser, er) {
+      closeText(parser);
+      if (parser.trackPosition) {
+        er += "\nLine: " + parser.line + "\nColumn: " + parser.column + "\nChar: " + parser.c;
+      }
+      er = new Error(er);
+      parser.error = er;
+      emit(parser, "onerror", er);
+      return parser;
+    }
+    function end(parser) {
+      if (parser.sawRoot && !parser.closedRoot)
+        strictFail(parser, "Unclosed root tag");
+      if (parser.state !== S2.BEGIN && parser.state !== S2.BEGIN_WHITESPACE && parser.state !== S2.TEXT) {
+        error(parser, "Unexpected end");
+      }
+      closeText(parser);
+      parser.c = "";
+      parser.closed = true;
+      emit(parser, "onend");
+      SAXParser.call(parser, parser.strict, parser.opt);
+      return parser;
+    }
+    function strictFail(parser, message) {
+      if (typeof parser !== "object" || !(parser instanceof SAXParser)) {
+        throw new Error("bad call to strictFail");
+      }
+      if (parser.strict) {
+        error(parser, message);
+      }
+    }
+    function newTag(parser) {
+      if (!parser.strict)
+        parser.tagName = parser.tagName[parser.looseCase]();
+      var parent = parser.tags[parser.tags.length - 1] || parser;
+      var tag = parser.tag = { name: parser.tagName, attributes: {} };
+      if (parser.opt.xmlns) {
+        tag.ns = parent.ns;
+      }
+      parser.attribList.length = 0;
+      emitNode(parser, "onopentagstart", tag);
+    }
+    function qname(name, attribute) {
+      var i2 = name.indexOf(":");
+      var qualName = i2 < 0 ? ["", name] : name.split(":");
+      var prefix2 = qualName[0];
+      var local = qualName[1];
+      if (attribute && name === "xmlns") {
+        prefix2 = "xmlns";
+        local = "";
+      }
+      return { prefix: prefix2, local };
+    }
+    function attrib(parser) {
+      if (!parser.strict) {
+        parser.attribName = parser.attribName[parser.looseCase]();
+      }
+      if (parser.attribList.indexOf(parser.attribName) !== -1 || parser.tag.attributes.hasOwnProperty(parser.attribName)) {
+        parser.attribName = parser.attribValue = "";
+        return;
+      }
+      if (parser.opt.xmlns) {
+        var qn = qname(parser.attribName, true);
+        var prefix2 = qn.prefix;
+        var local = qn.local;
+        if (prefix2 === "xmlns") {
+          if (local === "xml" && parser.attribValue !== XML_NAMESPACE) {
+            strictFail(
+              parser,
+              "xml: prefix must be bound to " + XML_NAMESPACE + "\nActual: " + parser.attribValue
+            );
+          } else if (local === "xmlns" && parser.attribValue !== XMLNS_NAMESPACE) {
+            strictFail(
+              parser,
+              "xmlns: prefix must be bound to " + XMLNS_NAMESPACE + "\nActual: " + parser.attribValue
+            );
+          } else {
+            var tag = parser.tag;
+            var parent = parser.tags[parser.tags.length - 1] || parser;
+            if (tag.ns === parent.ns) {
+              tag.ns = Object.create(parent.ns);
+            }
+            tag.ns[local] = parser.attribValue;
+          }
+        }
+        parser.attribList.push([parser.attribName, parser.attribValue]);
+      } else {
+        parser.tag.attributes[parser.attribName] = parser.attribValue;
+        emitNode(parser, "onattribute", {
+          name: parser.attribName,
+          value: parser.attribValue
+        });
+      }
+      parser.attribName = parser.attribValue = "";
+    }
+    function openTag(parser, selfClosing) {
+      if (parser.opt.xmlns) {
+        var tag = parser.tag;
+        var qn = qname(parser.tagName);
+        tag.prefix = qn.prefix;
+        tag.local = qn.local;
+        tag.uri = tag.ns[qn.prefix] || "";
+        if (tag.prefix && !tag.uri) {
+          strictFail(parser, "Unbound namespace prefix: " + JSON.stringify(parser.tagName));
+          tag.uri = qn.prefix;
+        }
+        var parent = parser.tags[parser.tags.length - 1] || parser;
+        if (tag.ns && parent.ns !== tag.ns) {
+          Object.keys(tag.ns).forEach(function(p2) {
+            emitNode(parser, "onopennamespace", {
+              prefix: p2,
+              uri: tag.ns[p2]
+            });
+          });
+        }
+        for (var i2 = 0, l2 = parser.attribList.length; i2 < l2; i2++) {
+          var nv = parser.attribList[i2];
+          var name = nv[0];
+          var value = nv[1];
+          var qualName = qname(name, true);
+          var prefix2 = qualName.prefix;
+          var local = qualName.local;
+          var uri = prefix2 === "" ? "" : tag.ns[prefix2] || "";
+          var a = {
+            name,
+            value,
+            prefix: prefix2,
+            local,
+            uri
+          };
+          if (prefix2 && prefix2 !== "xmlns" && !uri) {
+            strictFail(parser, "Unbound namespace prefix: " + JSON.stringify(prefix2));
+            a.uri = prefix2;
+          }
+          parser.tag.attributes[name] = a;
+          emitNode(parser, "onattribute", a);
+        }
+        parser.attribList.length = 0;
+      }
+      parser.tag.isSelfClosing = !!selfClosing;
+      parser.sawRoot = true;
+      parser.tags.push(parser.tag);
+      emitNode(parser, "onopentag", parser.tag);
+      if (!selfClosing) {
+        if (!parser.noscript && parser.tagName.toLowerCase() === "script") {
+          parser.state = S2.SCRIPT;
+        } else {
+          parser.state = S2.TEXT;
+        }
+        parser.tag = null;
+        parser.tagName = "";
+      }
+      parser.attribName = parser.attribValue = "";
+      parser.attribList.length = 0;
+    }
+    function closeTag(parser) {
+      if (!parser.tagName) {
+        strictFail(parser, "Weird empty close tag.");
+        parser.textNode += "</>";
+        parser.state = S2.TEXT;
+        return;
+      }
+      if (parser.script) {
+        if (parser.tagName !== "script") {
+          parser.script += "</" + parser.tagName + ">";
+          parser.tagName = "";
+          parser.state = S2.SCRIPT;
+          return;
+        }
+        emitNode(parser, "onscript", parser.script);
+        parser.script = "";
+      }
+      var t2 = parser.tags.length;
+      var tagName = parser.tagName;
+      if (!parser.strict) {
+        tagName = tagName[parser.looseCase]();
+      }
+      var closeTo = tagName;
+      while (t2--) {
+        var close = parser.tags[t2];
+        if (close.name !== closeTo) {
+          strictFail(parser, "Unexpected close tag");
+        } else {
+          break;
+        }
+      }
+      if (t2 < 0) {
+        strictFail(parser, "Unmatched closing tag: " + parser.tagName);
+        parser.textNode += "</" + parser.tagName + ">";
+        parser.state = S2.TEXT;
+        return;
+      }
+      parser.tagName = tagName;
+      var s2 = parser.tags.length;
+      while (s2-- > t2) {
+        var tag = parser.tag = parser.tags.pop();
+        parser.tagName = parser.tag.name;
+        emitNode(parser, "onclosetag", parser.tagName);
+        var x2 = {};
+        for (var i2 in tag.ns) {
+          x2[i2] = tag.ns[i2];
+        }
+        var parent = parser.tags[parser.tags.length - 1] || parser;
+        if (parser.opt.xmlns && tag.ns !== parent.ns) {
+          Object.keys(tag.ns).forEach(function(p2) {
+            var n2 = tag.ns[p2];
+            emitNode(parser, "onclosenamespace", { prefix: p2, uri: n2 });
+          });
+        }
+      }
+      if (t2 === 0)
+        parser.closedRoot = true;
+      parser.tagName = parser.attribValue = parser.attribName = "";
+      parser.attribList.length = 0;
+      parser.state = S2.TEXT;
+    }
+    function parseEntity(parser) {
+      var entity = parser.entity;
+      var entityLC = entity.toLowerCase();
+      var num;
+      var numStr = "";
+      if (parser.ENTITIES[entity]) {
+        return parser.ENTITIES[entity];
+      }
+      if (parser.ENTITIES[entityLC]) {
+        return parser.ENTITIES[entityLC];
+      }
+      entity = entityLC;
+      if (entity.charAt(0) === "#") {
+        if (entity.charAt(1) === "x") {
+          entity = entity.slice(2);
+          num = parseInt(entity, 16);
+          numStr = num.toString(16);
+        } else {
+          entity = entity.slice(1);
+          num = parseInt(entity, 10);
+          numStr = num.toString(10);
+        }
+      }
+      entity = entity.replace(/^0+/, "");
+      if (isNaN(num) || numStr.toLowerCase() !== entity) {
+        strictFail(parser, "Invalid character entity");
+        return "&" + parser.entity + ";";
+      }
+      return String.fromCodePoint(num);
+    }
+    function beginWhiteSpace(parser, c2) {
+      if (c2 === "<") {
+        parser.state = S2.OPEN_WAKA;
+        parser.startTagPosition = parser.position;
+      } else if (!isWhitespace(c2)) {
+        strictFail(parser, "Non-whitespace before first tag.");
+        parser.textNode = c2;
+        parser.state = S2.TEXT;
+      }
+    }
+    function charAt(chunk, i2) {
+      var result = "";
+      if (i2 < chunk.length) {
+        result = chunk.charAt(i2);
+      }
+      return result;
+    }
+    function write(chunk) {
+      var parser = this;
+      if (this.error) {
+        throw this.error;
+      }
+      if (parser.closed) {
+        return error(
+          parser,
+          "Cannot write after close. Assign an onready handler."
+        );
+      }
+      if (chunk === null) {
+        return end(parser);
+      }
+      if (typeof chunk === "object") {
+        chunk = chunk.toString();
+      }
+      var i2 = 0;
+      var c2 = "";
+      while (true) {
+        c2 = charAt(chunk, i2++);
+        parser.c = c2;
+        if (!c2) {
+          break;
+        }
+        if (parser.trackPosition) {
+          parser.position++;
+          if (c2 === "\n") {
+            parser.line++;
+            parser.column = 0;
+          } else {
+            parser.column++;
+          }
+        }
+        switch (parser.state) {
+          case S2.BEGIN:
+            parser.state = S2.BEGIN_WHITESPACE;
+            if (c2 === "\uFEFF") {
+              continue;
+            }
+            beginWhiteSpace(parser, c2);
+            continue;
+          case S2.BEGIN_WHITESPACE:
+            beginWhiteSpace(parser, c2);
+            continue;
+          case S2.TEXT:
+            if (parser.sawRoot && !parser.closedRoot) {
+              var starti = i2 - 1;
+              while (c2 && c2 !== "<" && c2 !== "&") {
+                c2 = charAt(chunk, i2++);
+                if (c2 && parser.trackPosition) {
+                  parser.position++;
+                  if (c2 === "\n") {
+                    parser.line++;
+                    parser.column = 0;
+                  } else {
+                    parser.column++;
+                  }
+                }
+              }
+              parser.textNode += chunk.substring(starti, i2 - 1);
+            }
+            if (c2 === "<" && !(parser.sawRoot && parser.closedRoot && !parser.strict)) {
+              parser.state = S2.OPEN_WAKA;
+              parser.startTagPosition = parser.position;
+            } else {
+              if (!isWhitespace(c2) && (!parser.sawRoot || parser.closedRoot)) {
+                strictFail(parser, "Text data outside of root node.");
+              }
+              if (c2 === "&") {
+                parser.state = S2.TEXT_ENTITY;
+              } else {
+                parser.textNode += c2;
+              }
+            }
+            continue;
+          case S2.SCRIPT:
+            if (c2 === "<") {
+              parser.state = S2.SCRIPT_ENDING;
+            } else {
+              parser.script += c2;
+            }
+            continue;
+          case S2.SCRIPT_ENDING:
+            if (c2 === "/") {
+              parser.state = S2.CLOSE_TAG;
+            } else {
+              parser.script += "<" + c2;
+              parser.state = S2.SCRIPT;
+            }
+            continue;
+          case S2.OPEN_WAKA:
+            if (c2 === "!") {
+              parser.state = S2.SGML_DECL;
+              parser.sgmlDecl = "";
+            } else if (isWhitespace(c2))
+              ;
+            else if (isMatch(nameStart, c2)) {
+              parser.state = S2.OPEN_TAG;
+              parser.tagName = c2;
+            } else if (c2 === "/") {
+              parser.state = S2.CLOSE_TAG;
+              parser.tagName = "";
+            } else if (c2 === "?") {
+              parser.state = S2.PROC_INST;
+              parser.procInstName = parser.procInstBody = "";
+            } else {
+              strictFail(parser, "Unencoded <");
+              if (parser.startTagPosition + 1 < parser.position) {
+                var pad = parser.position - parser.startTagPosition;
+                c2 = new Array(pad).join(" ") + c2;
+              }
+              parser.textNode += "<" + c2;
+              parser.state = S2.TEXT;
+            }
+            continue;
+          case S2.SGML_DECL:
+            if ((parser.sgmlDecl + c2).toUpperCase() === CDATA) {
+              emitNode(parser, "onopencdata");
+              parser.state = S2.CDATA;
+              parser.sgmlDecl = "";
+              parser.cdata = "";
+            } else if (parser.sgmlDecl + c2 === "--") {
+              parser.state = S2.COMMENT;
+              parser.comment = "";
+              parser.sgmlDecl = "";
+            } else if ((parser.sgmlDecl + c2).toUpperCase() === DOCTYPE) {
+              parser.state = S2.DOCTYPE;
+              if (parser.doctype || parser.sawRoot) {
+                strictFail(
+                  parser,
+                  "Inappropriately located doctype declaration"
+                );
+              }
+              parser.doctype = "";
+              parser.sgmlDecl = "";
+            } else if (c2 === ">") {
+              emitNode(parser, "onsgmldeclaration", parser.sgmlDecl);
+              parser.sgmlDecl = "";
+              parser.state = S2.TEXT;
+            } else if (isQuote(c2)) {
+              parser.state = S2.SGML_DECL_QUOTED;
+              parser.sgmlDecl += c2;
+            } else {
+              parser.sgmlDecl += c2;
+            }
+            continue;
+          case S2.SGML_DECL_QUOTED:
+            if (c2 === parser.q) {
+              parser.state = S2.SGML_DECL;
+              parser.q = "";
+            }
+            parser.sgmlDecl += c2;
+            continue;
+          case S2.DOCTYPE:
+            if (c2 === ">") {
+              parser.state = S2.TEXT;
+              emitNode(parser, "ondoctype", parser.doctype);
+              parser.doctype = true;
+            } else {
+              parser.doctype += c2;
+              if (c2 === "[") {
+                parser.state = S2.DOCTYPE_DTD;
+              } else if (isQuote(c2)) {
+                parser.state = S2.DOCTYPE_QUOTED;
+                parser.q = c2;
+              }
+            }
+            continue;
+          case S2.DOCTYPE_QUOTED:
+            parser.doctype += c2;
+            if (c2 === parser.q) {
+              parser.q = "";
+              parser.state = S2.DOCTYPE;
+            }
+            continue;
+          case S2.DOCTYPE_DTD:
+            parser.doctype += c2;
+            if (c2 === "]") {
+              parser.state = S2.DOCTYPE;
+            } else if (isQuote(c2)) {
+              parser.state = S2.DOCTYPE_DTD_QUOTED;
+              parser.q = c2;
+            }
+            continue;
+          case S2.DOCTYPE_DTD_QUOTED:
+            parser.doctype += c2;
+            if (c2 === parser.q) {
+              parser.state = S2.DOCTYPE_DTD;
+              parser.q = "";
+            }
+            continue;
+          case S2.COMMENT:
+            if (c2 === "-") {
+              parser.state = S2.COMMENT_ENDING;
+            } else {
+              parser.comment += c2;
+            }
+            continue;
+          case S2.COMMENT_ENDING:
+            if (c2 === "-") {
+              parser.state = S2.COMMENT_ENDED;
+              parser.comment = textopts(parser.opt, parser.comment);
+              if (parser.comment) {
+                emitNode(parser, "oncomment", parser.comment);
+              }
+              parser.comment = "";
+            } else {
+              parser.comment += "-" + c2;
+              parser.state = S2.COMMENT;
+            }
+            continue;
+          case S2.COMMENT_ENDED:
+            if (c2 !== ">") {
+              strictFail(parser, "Malformed comment");
+              parser.comment += "--" + c2;
+              parser.state = S2.COMMENT;
+            } else {
+              parser.state = S2.TEXT;
+            }
+            continue;
+          case S2.CDATA:
+            if (c2 === "]") {
+              parser.state = S2.CDATA_ENDING;
+            } else {
+              parser.cdata += c2;
+            }
+            continue;
+          case S2.CDATA_ENDING:
+            if (c2 === "]") {
+              parser.state = S2.CDATA_ENDING_2;
+            } else {
+              parser.cdata += "]" + c2;
+              parser.state = S2.CDATA;
+            }
+            continue;
+          case S2.CDATA_ENDING_2:
+            if (c2 === ">") {
+              if (parser.cdata) {
+                emitNode(parser, "oncdata", parser.cdata);
+              }
+              emitNode(parser, "onclosecdata");
+              parser.cdata = "";
+              parser.state = S2.TEXT;
+            } else if (c2 === "]") {
+              parser.cdata += "]";
+            } else {
+              parser.cdata += "]]" + c2;
+              parser.state = S2.CDATA;
+            }
+            continue;
+          case S2.PROC_INST:
+            if (c2 === "?") {
+              parser.state = S2.PROC_INST_ENDING;
+            } else if (isWhitespace(c2)) {
+              parser.state = S2.PROC_INST_BODY;
+            } else {
+              parser.procInstName += c2;
+            }
+            continue;
+          case S2.PROC_INST_BODY:
+            if (!parser.procInstBody && isWhitespace(c2)) {
+              continue;
+            } else if (c2 === "?") {
+              parser.state = S2.PROC_INST_ENDING;
+            } else {
+              parser.procInstBody += c2;
+            }
+            continue;
+          case S2.PROC_INST_ENDING:
+            if (c2 === ">") {
+              emitNode(parser, "onprocessinginstruction", {
+                name: parser.procInstName,
+                body: parser.procInstBody
+              });
+              parser.procInstName = parser.procInstBody = "";
+              parser.state = S2.TEXT;
+            } else {
+              parser.procInstBody += "?" + c2;
+              parser.state = S2.PROC_INST_BODY;
+            }
+            continue;
+          case S2.OPEN_TAG:
+            if (isMatch(nameBody, c2)) {
+              parser.tagName += c2;
+            } else {
+              newTag(parser);
+              if (c2 === ">") {
+                openTag(parser);
+              } else if (c2 === "/") {
+                parser.state = S2.OPEN_TAG_SLASH;
+              } else {
+                if (!isWhitespace(c2)) {
+                  strictFail(parser, "Invalid character in tag name");
+                }
+                parser.state = S2.ATTRIB;
+              }
+            }
+            continue;
+          case S2.OPEN_TAG_SLASH:
+            if (c2 === ">") {
+              openTag(parser, true);
+              closeTag(parser);
+            } else {
+              strictFail(parser, "Forward-slash in opening tag not followed by >");
+              parser.state = S2.ATTRIB;
+            }
+            continue;
+          case S2.ATTRIB:
+            if (isWhitespace(c2)) {
+              continue;
+            } else if (c2 === ">") {
+              openTag(parser);
+            } else if (c2 === "/") {
+              parser.state = S2.OPEN_TAG_SLASH;
+            } else if (isMatch(nameStart, c2)) {
+              parser.attribName = c2;
+              parser.attribValue = "";
+              parser.state = S2.ATTRIB_NAME;
+            } else {
+              strictFail(parser, "Invalid attribute name");
+            }
+            continue;
+          case S2.ATTRIB_NAME:
+            if (c2 === "=") {
+              parser.state = S2.ATTRIB_VALUE;
+            } else if (c2 === ">") {
+              strictFail(parser, "Attribute without value");
+              parser.attribValue = parser.attribName;
+              attrib(parser);
+              openTag(parser);
+            } else if (isWhitespace(c2)) {
+              parser.state = S2.ATTRIB_NAME_SAW_WHITE;
+            } else if (isMatch(nameBody, c2)) {
+              parser.attribName += c2;
+            } else {
+              strictFail(parser, "Invalid attribute name");
+            }
+            continue;
+          case S2.ATTRIB_NAME_SAW_WHITE:
+            if (c2 === "=") {
+              parser.state = S2.ATTRIB_VALUE;
+            } else if (isWhitespace(c2)) {
+              continue;
+            } else {
+              strictFail(parser, "Attribute without value");
+              parser.tag.attributes[parser.attribName] = "";
+              parser.attribValue = "";
+              emitNode(parser, "onattribute", {
+                name: parser.attribName,
+                value: ""
+              });
+              parser.attribName = "";
+              if (c2 === ">") {
+                openTag(parser);
+              } else if (isMatch(nameStart, c2)) {
+                parser.attribName = c2;
+                parser.state = S2.ATTRIB_NAME;
+              } else {
+                strictFail(parser, "Invalid attribute name");
+                parser.state = S2.ATTRIB;
+              }
+            }
+            continue;
+          case S2.ATTRIB_VALUE:
+            if (isWhitespace(c2)) {
+              continue;
+            } else if (isQuote(c2)) {
+              parser.q = c2;
+              parser.state = S2.ATTRIB_VALUE_QUOTED;
+            } else {
+              strictFail(parser, "Unquoted attribute value");
+              parser.state = S2.ATTRIB_VALUE_UNQUOTED;
+              parser.attribValue = c2;
+            }
+            continue;
+          case S2.ATTRIB_VALUE_QUOTED:
+            if (c2 !== parser.q) {
+              if (c2 === "&") {
+                parser.state = S2.ATTRIB_VALUE_ENTITY_Q;
+              } else {
+                parser.attribValue += c2;
+              }
+              continue;
+            }
+            attrib(parser);
+            parser.q = "";
+            parser.state = S2.ATTRIB_VALUE_CLOSED;
+            continue;
+          case S2.ATTRIB_VALUE_CLOSED:
+            if (isWhitespace(c2)) {
+              parser.state = S2.ATTRIB;
+            } else if (c2 === ">") {
+              openTag(parser);
+            } else if (c2 === "/") {
+              parser.state = S2.OPEN_TAG_SLASH;
+            } else if (isMatch(nameStart, c2)) {
+              strictFail(parser, "No whitespace between attributes");
+              parser.attribName = c2;
+              parser.attribValue = "";
+              parser.state = S2.ATTRIB_NAME;
+            } else {
+              strictFail(parser, "Invalid attribute name");
+            }
+            continue;
+          case S2.ATTRIB_VALUE_UNQUOTED:
+            if (!isAttribEnd(c2)) {
+              if (c2 === "&") {
+                parser.state = S2.ATTRIB_VALUE_ENTITY_U;
+              } else {
+                parser.attribValue += c2;
+              }
+              continue;
+            }
+            attrib(parser);
+            if (c2 === ">") {
+              openTag(parser);
+            } else {
+              parser.state = S2.ATTRIB;
+            }
+            continue;
+          case S2.CLOSE_TAG:
+            if (!parser.tagName) {
+              if (isWhitespace(c2)) {
+                continue;
+              } else if (notMatch(nameStart, c2)) {
+                if (parser.script) {
+                  parser.script += "</" + c2;
+                  parser.state = S2.SCRIPT;
+                } else {
+                  strictFail(parser, "Invalid tagname in closing tag.");
+                }
+              } else {
+                parser.tagName = c2;
+              }
+            } else if (c2 === ">") {
+              closeTag(parser);
+            } else if (isMatch(nameBody, c2)) {
+              parser.tagName += c2;
+            } else if (parser.script) {
+              parser.script += "</" + parser.tagName;
+              parser.tagName = "";
+              parser.state = S2.SCRIPT;
+            } else {
+              if (!isWhitespace(c2)) {
+                strictFail(parser, "Invalid tagname in closing tag");
+              }
+              parser.state = S2.CLOSE_TAG_SAW_WHITE;
+            }
+            continue;
+          case S2.CLOSE_TAG_SAW_WHITE:
+            if (isWhitespace(c2)) {
+              continue;
+            }
+            if (c2 === ">") {
+              closeTag(parser);
+            } else {
+              strictFail(parser, "Invalid characters in closing tag");
+            }
+            continue;
+          case S2.TEXT_ENTITY:
+          case S2.ATTRIB_VALUE_ENTITY_Q:
+          case S2.ATTRIB_VALUE_ENTITY_U:
+            var returnState;
+            var buffer;
+            switch (parser.state) {
+              case S2.TEXT_ENTITY:
+                returnState = S2.TEXT;
+                buffer = "textNode";
+                break;
+              case S2.ATTRIB_VALUE_ENTITY_Q:
+                returnState = S2.ATTRIB_VALUE_QUOTED;
+                buffer = "attribValue";
+                break;
+              case S2.ATTRIB_VALUE_ENTITY_U:
+                returnState = S2.ATTRIB_VALUE_UNQUOTED;
+                buffer = "attribValue";
+                break;
+            }
+            if (c2 === ";") {
+              if (parser.opt.unparsedEntities) {
+                var parsedEntity = parseEntity(parser);
+                parser.entity = "";
+                parser.state = returnState;
+                parser.write(parsedEntity);
+              } else {
+                parser[buffer] += parseEntity(parser);
+                parser.entity = "";
+                parser.state = returnState;
+              }
+            } else if (isMatch(parser.entity.length ? entityBody : entityStart, c2)) {
+              parser.entity += c2;
+            } else {
+              strictFail(parser, "Invalid character in entity name");
+              parser[buffer] += "&" + parser.entity + c2;
+              parser.entity = "";
+              parser.state = returnState;
+            }
+            continue;
+          default: {
+            throw new Error(parser, "Unknown state: " + parser.state);
+          }
+        }
+      }
+      if (parser.position >= parser.bufferCheckPosition) {
+        checkBufferLength(parser);
+      }
+      return parser;
+    }
+    /*! http://mths.be/fromcodepoint v0.1.0 by @mathias */
+    if (!String.fromCodePoint) {
+      (function() {
+        var stringFromCharCode = String.fromCharCode;
+        var floor2 = Math.floor;
+        var fromCodePoint = function() {
+          var MAX_SIZE = 16384;
+          var codeUnits = [];
+          var highSurrogate;
+          var lowSurrogate;
+          var index2 = -1;
+          var length2 = arguments.length;
+          if (!length2) {
+            return "";
+          }
+          var result = "";
+          while (++index2 < length2) {
+            var codePoint = Number(arguments[index2]);
+            if (!isFinite(codePoint) || codePoint < 0 || codePoint > 1114111 || floor2(codePoint) !== codePoint) {
+              throw RangeError("Invalid code point: " + codePoint);
+            }
+            if (codePoint <= 65535) {
+              codeUnits.push(codePoint);
+            } else {
+              codePoint -= 65536;
+              highSurrogate = (codePoint >> 10) + 55296;
+              lowSurrogate = codePoint % 1024 + 56320;
+              codeUnits.push(highSurrogate, lowSurrogate);
+            }
+            if (index2 + 1 === length2 || codeUnits.length > MAX_SIZE) {
+              result += stringFromCharCode.apply(null, codeUnits);
+              codeUnits.length = 0;
+            }
+          }
+          return result;
+        };
+        if (Object.defineProperty) {
+          Object.defineProperty(String, "fromCodePoint", {
+            value: fromCodePoint,
+            configurable: true,
+            writable: true
+          });
+        } else {
+          String.fromCodePoint = fromCodePoint;
+        }
+      })();
+    }
+  })(exports);
+})(sax$1);
+var arrayHelper = {
+  isArray: function(value) {
+    if (Array.isArray) {
+      return Array.isArray(value);
+    }
+    return Object.prototype.toString.call(value) === "[object Array]";
+  }
+};
+var isArray$3 = arrayHelper.isArray;
+var optionsHelper = {
+  copyOptions: function(options2) {
+    var key, copy2 = {};
+    for (key in options2) {
+      if (options2.hasOwnProperty(key)) {
+        copy2[key] = options2[key];
+      }
+    }
+    return copy2;
+  },
+  ensureFlagExists: function(item, options2) {
+    if (!(item in options2) || typeof options2[item] !== "boolean") {
+      options2[item] = false;
+    }
+  },
+  ensureSpacesExists: function(options2) {
+    if (!("spaces" in options2) || typeof options2.spaces !== "number" && typeof options2.spaces !== "string") {
+      options2.spaces = 0;
+    }
+  },
+  ensureAlwaysArrayExists: function(options2) {
+    if (!("alwaysArray" in options2) || typeof options2.alwaysArray !== "boolean" && !isArray$3(options2.alwaysArray)) {
+      options2.alwaysArray = false;
+    }
+  },
+  ensureKeyExists: function(key, options2) {
+    if (!(key + "Key" in options2) || typeof options2[key + "Key"] !== "string") {
+      options2[key + "Key"] = options2.compact ? "_" + key : key;
+    }
+  },
+  checkFnExists: function(key, options2) {
+    return key + "Fn" in options2;
+  }
+};
+var sax = sax$1;
+var helper$2 = optionsHelper;
+var isArray$2 = arrayHelper.isArray;
+var options;
+var currentElement$1;
+function validateOptions$2(userOptions) {
+  options = helper$2.copyOptions(userOptions);
+  helper$2.ensureFlagExists("ignoreDeclaration", options);
+  helper$2.ensureFlagExists("ignoreInstruction", options);
+  helper$2.ensureFlagExists("ignoreAttributes", options);
+  helper$2.ensureFlagExists("ignoreText", options);
+  helper$2.ensureFlagExists("ignoreComment", options);
+  helper$2.ensureFlagExists("ignoreCdata", options);
+  helper$2.ensureFlagExists("ignoreDoctype", options);
+  helper$2.ensureFlagExists("compact", options);
+  helper$2.ensureFlagExists("alwaysChildren", options);
+  helper$2.ensureFlagExists("addParent", options);
+  helper$2.ensureFlagExists("trim", options);
+  helper$2.ensureFlagExists("nativeType", options);
+  helper$2.ensureFlagExists("nativeTypeAttributes", options);
+  helper$2.ensureFlagExists("sanitize", options);
+  helper$2.ensureFlagExists("instructionHasAttributes", options);
+  helper$2.ensureFlagExists("captureSpacesBetweenElements", options);
+  helper$2.ensureAlwaysArrayExists(options);
+  helper$2.ensureKeyExists("declaration", options);
+  helper$2.ensureKeyExists("instruction", options);
+  helper$2.ensureKeyExists("attributes", options);
+  helper$2.ensureKeyExists("text", options);
+  helper$2.ensureKeyExists("comment", options);
+  helper$2.ensureKeyExists("cdata", options);
+  helper$2.ensureKeyExists("doctype", options);
+  helper$2.ensureKeyExists("type", options);
+  helper$2.ensureKeyExists("name", options);
+  helper$2.ensureKeyExists("elements", options);
+  helper$2.ensureKeyExists("parent", options);
+  return options;
+}
+function nativeType(value) {
+  var nValue = Number(value);
+  if (!isNaN(nValue)) {
+    return nValue;
+  }
+  var bValue = value.toLowerCase();
+  if (bValue === "true") {
+    return true;
+  } else if (bValue === "false") {
+    return false;
+  }
+  return value;
+}
+function addField(type, value) {
+  var key;
+  if (options.compact) {
+    if (!currentElement$1[options[type + "Key"]] && (isArray$2(options.alwaysArray) ? options.alwaysArray.indexOf(options[type + "Key"]) !== -1 : options.alwaysArray)) {
+      currentElement$1[options[type + "Key"]] = [];
+    }
+    if (currentElement$1[options[type + "Key"]] && !isArray$2(currentElement$1[options[type + "Key"]])) {
+      currentElement$1[options[type + "Key"]] = [currentElement$1[options[type + "Key"]]];
+    }
+    if (type + "Fn" in options && typeof value === "string") {
+      value = options[type + "Fn"](value, currentElement$1);
+    }
+    if (type === "instruction" && ("instructionFn" in options || "instructionNameFn" in options)) {
+      for (key in value) {
+        if (value.hasOwnProperty(key)) {
+          if ("instructionFn" in options) {
+            value[key] = options.instructionFn(value[key], key, currentElement$1);
+          } else {
+            var temp = value[key];
+            delete value[key];
+            value[options.instructionNameFn(key, temp, currentElement$1)] = temp;
+          }
+        }
+      }
+    }
+    if (isArray$2(currentElement$1[options[type + "Key"]])) {
+      currentElement$1[options[type + "Key"]].push(value);
+    } else {
+      currentElement$1[options[type + "Key"]] = value;
+    }
+  } else {
+    if (!currentElement$1[options.elementsKey]) {
+      currentElement$1[options.elementsKey] = [];
+    }
+    var element = {};
+    element[options.typeKey] = type;
+    if (type === "instruction") {
+      for (key in value) {
+        if (value.hasOwnProperty(key)) {
+          break;
+        }
+      }
+      element[options.nameKey] = "instructionNameFn" in options ? options.instructionNameFn(key, value, currentElement$1) : key;
+      if (options.instructionHasAttributes) {
+        element[options.attributesKey] = value[key][options.attributesKey];
+        if ("instructionFn" in options) {
+          element[options.attributesKey] = options.instructionFn(element[options.attributesKey], key, currentElement$1);
+        }
+      } else {
+        if ("instructionFn" in options) {
+          value[key] = options.instructionFn(value[key], key, currentElement$1);
+        }
+        element[options.instructionKey] = value[key];
+      }
+    } else {
+      if (type + "Fn" in options) {
+        value = options[type + "Fn"](value, currentElement$1);
+      }
+      element[options[type + "Key"]] = value;
+    }
+    if (options.addParent) {
+      element[options.parentKey] = currentElement$1;
+    }
+    currentElement$1[options.elementsKey].push(element);
+  }
+}
+function manipulateAttributes(attributes) {
+  if ("attributesFn" in options && attributes) {
+    attributes = options.attributesFn(attributes, currentElement$1);
+  }
+  if ((options.trim || "attributeValueFn" in options || "attributeNameFn" in options || options.nativeTypeAttributes) && attributes) {
+    var key;
+    for (key in attributes) {
+      if (attributes.hasOwnProperty(key)) {
+        if (options.trim)
+          attributes[key] = attributes[key].trim();
+        if (options.nativeTypeAttributes) {
+          attributes[key] = nativeType(attributes[key]);
+        }
+        if ("attributeValueFn" in options)
+          attributes[key] = options.attributeValueFn(attributes[key], key, currentElement$1);
+        if ("attributeNameFn" in options) {
+          var temp = attributes[key];
+          delete attributes[key];
+          attributes[options.attributeNameFn(key, attributes[key], currentElement$1)] = temp;
+        }
+      }
+    }
+  }
+  return attributes;
+}
+function onInstruction(instruction) {
+  var attributes = {};
+  if (instruction.body && (instruction.name.toLowerCase() === "xml" || options.instructionHasAttributes)) {
+    var attrsRegExp = /([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|(\w+))\s*/g;
+    var match2;
+    while ((match2 = attrsRegExp.exec(instruction.body)) !== null) {
+      attributes[match2[1]] = match2[2] || match2[3] || match2[4];
+    }
+    attributes = manipulateAttributes(attributes);
+  }
+  if (instruction.name.toLowerCase() === "xml") {
+    if (options.ignoreDeclaration) {
+      return;
+    }
+    currentElement$1[options.declarationKey] = {};
+    if (Object.keys(attributes).length) {
+      currentElement$1[options.declarationKey][options.attributesKey] = attributes;
+    }
+    if (options.addParent) {
+      currentElement$1[options.declarationKey][options.parentKey] = currentElement$1;
+    }
+  } else {
+    if (options.ignoreInstruction) {
+      return;
+    }
+    if (options.trim) {
+      instruction.body = instruction.body.trim();
+    }
+    var value = {};
+    if (options.instructionHasAttributes && Object.keys(attributes).length) {
+      value[instruction.name] = {};
+      value[instruction.name][options.attributesKey] = attributes;
+    } else {
+      value[instruction.name] = instruction.body;
+    }
+    addField("instruction", value);
+  }
+}
+function onStartElement(name, attributes) {
+  var element;
+  if (typeof name === "object") {
+    attributes = name.attributes;
+    name = name.name;
+  }
+  attributes = manipulateAttributes(attributes);
+  if ("elementNameFn" in options) {
+    name = options.elementNameFn(name, currentElement$1);
+  }
+  if (options.compact) {
+    element = {};
+    if (!options.ignoreAttributes && attributes && Object.keys(attributes).length) {
+      element[options.attributesKey] = {};
+      var key;
+      for (key in attributes) {
+        if (attributes.hasOwnProperty(key)) {
+          element[options.attributesKey][key] = attributes[key];
+        }
+      }
+    }
+    if (!(name in currentElement$1) && (isArray$2(options.alwaysArray) ? options.alwaysArray.indexOf(name) !== -1 : options.alwaysArray)) {
+      currentElement$1[name] = [];
+    }
+    if (currentElement$1[name] && !isArray$2(currentElement$1[name])) {
+      currentElement$1[name] = [currentElement$1[name]];
+    }
+    if (isArray$2(currentElement$1[name])) {
+      currentElement$1[name].push(element);
+    } else {
+      currentElement$1[name] = element;
+    }
+  } else {
+    if (!currentElement$1[options.elementsKey]) {
+      currentElement$1[options.elementsKey] = [];
+    }
+    element = {};
+    element[options.typeKey] = "element";
+    element[options.nameKey] = name;
+    if (!options.ignoreAttributes && attributes && Object.keys(attributes).length) {
+      element[options.attributesKey] = attributes;
+    }
+    if (options.alwaysChildren) {
+      element[options.elementsKey] = [];
+    }
+    currentElement$1[options.elementsKey].push(element);
+  }
+  element[options.parentKey] = currentElement$1;
+  currentElement$1 = element;
+}
+function onText(text) {
+  if (options.ignoreText) {
+    return;
+  }
+  if (!text.trim() && !options.captureSpacesBetweenElements) {
+    return;
+  }
+  if (options.trim) {
+    text = text.trim();
+  }
+  if (options.nativeType) {
+    text = nativeType(text);
+  }
+  if (options.sanitize) {
+    text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  addField("text", text);
+}
+function onComment(comment2) {
+  if (options.ignoreComment) {
+    return;
+  }
+  if (options.trim) {
+    comment2 = comment2.trim();
+  }
+  addField("comment", comment2);
+}
+function onEndElement(name) {
+  var parentElement = currentElement$1[options.parentKey];
+  if (!options.addParent) {
+    delete currentElement$1[options.parentKey];
+  }
+  currentElement$1 = parentElement;
+}
+function onCdata(cdata) {
+  if (options.ignoreCdata) {
+    return;
+  }
+  if (options.trim) {
+    cdata = cdata.trim();
+  }
+  addField("cdata", cdata);
+}
+function onDoctype(doctype) {
+  if (options.ignoreDoctype) {
+    return;
+  }
+  doctype = doctype.replace(/^ /, "");
+  if (options.trim) {
+    doctype = doctype.trim();
+  }
+  addField("doctype", doctype);
+}
+function onError(error) {
+  error.note = error;
+}
+var xml2js$2 = function(xml, userOptions) {
+  var parser = sax.parser(true, {});
+  var result = {};
+  currentElement$1 = result;
+  options = validateOptions$2(userOptions);
+  {
+    parser.opt = { strictEntities: true };
+    parser.onopentag = onStartElement;
+    parser.ontext = onText;
+    parser.oncomment = onComment;
+    parser.onclosetag = onEndElement;
+    parser.onerror = onError;
+    parser.oncdata = onCdata;
+    parser.ondoctype = onDoctype;
+    parser.onprocessinginstruction = onInstruction;
+  }
+  {
+    parser.write(xml).close();
+  }
+  if (result[options.elementsKey]) {
+    var temp = result[options.elementsKey];
+    delete result[options.elementsKey];
+    result[options.elementsKey] = temp;
+    delete result.text;
+  }
+  return result;
+};
+var helper$1 = optionsHelper;
+var xml2js$1 = xml2js$2;
+function validateOptions$1(userOptions) {
+  var options2 = helper$1.copyOptions(userOptions);
+  helper$1.ensureSpacesExists(options2);
+  return options2;
+}
+var xml2json$1 = function(xml, userOptions) {
+  var options2, js, json, parentKey;
+  options2 = validateOptions$1(userOptions);
+  js = xml2js$1(xml, options2);
+  parentKey = "compact" in options2 && options2.compact ? "_parent" : "parent";
+  if ("addParent" in options2 && options2.addParent) {
+    json = JSON.stringify(js, function(k2, v2) {
+      return k2 === parentKey ? "_" : v2;
+    }, options2.spaces);
+  } else {
+    json = JSON.stringify(js, null, options2.spaces);
+  }
+  return json.replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+};
+var helper = optionsHelper;
+var isArray$1 = arrayHelper.isArray;
+var currentElement, currentElementName;
+function validateOptions(userOptions) {
+  var options2 = helper.copyOptions(userOptions);
+  helper.ensureFlagExists("ignoreDeclaration", options2);
+  helper.ensureFlagExists("ignoreInstruction", options2);
+  helper.ensureFlagExists("ignoreAttributes", options2);
+  helper.ensureFlagExists("ignoreText", options2);
+  helper.ensureFlagExists("ignoreComment", options2);
+  helper.ensureFlagExists("ignoreCdata", options2);
+  helper.ensureFlagExists("ignoreDoctype", options2);
+  helper.ensureFlagExists("compact", options2);
+  helper.ensureFlagExists("indentText", options2);
+  helper.ensureFlagExists("indentCdata", options2);
+  helper.ensureFlagExists("indentAttributes", options2);
+  helper.ensureFlagExists("indentInstruction", options2);
+  helper.ensureFlagExists("fullTagEmptyElement", options2);
+  helper.ensureFlagExists("noQuotesForNativeAttributes", options2);
+  helper.ensureSpacesExists(options2);
+  if (typeof options2.spaces === "number") {
+    options2.spaces = Array(options2.spaces + 1).join(" ");
+  }
+  helper.ensureKeyExists("declaration", options2);
+  helper.ensureKeyExists("instruction", options2);
+  helper.ensureKeyExists("attributes", options2);
+  helper.ensureKeyExists("text", options2);
+  helper.ensureKeyExists("comment", options2);
+  helper.ensureKeyExists("cdata", options2);
+  helper.ensureKeyExists("doctype", options2);
+  helper.ensureKeyExists("type", options2);
+  helper.ensureKeyExists("name", options2);
+  helper.ensureKeyExists("elements", options2);
+  return options2;
+}
+function writeIndentation(options2, depth, firstLine) {
+  return (!firstLine && options2.spaces ? "\n" : "") + Array(depth + 1).join(options2.spaces);
+}
+function writeAttributes(attributes, options2, depth) {
+  if (options2.ignoreAttributes) {
+    return "";
+  }
+  if ("attributesFn" in options2) {
+    attributes = options2.attributesFn(attributes, currentElementName, currentElement);
+  }
+  var key, attr, attrName, quote, result = [];
+  for (key in attributes) {
+    if (attributes.hasOwnProperty(key) && attributes[key] !== null && attributes[key] !== void 0) {
+      quote = options2.noQuotesForNativeAttributes && typeof attributes[key] !== "string" ? "" : '"';
+      attr = "" + attributes[key];
+      attr = attr.replace(/"/g, "&quot;");
+      attrName = "attributeNameFn" in options2 ? options2.attributeNameFn(key, attr, currentElementName, currentElement) : key;
+      result.push(options2.spaces && options2.indentAttributes ? writeIndentation(options2, depth + 1, false) : " ");
+      result.push(attrName + "=" + quote + ("attributeValueFn" in options2 ? options2.attributeValueFn(attr, key, currentElementName, currentElement) : attr) + quote);
+    }
+  }
+  if (attributes && Object.keys(attributes).length && options2.spaces && options2.indentAttributes) {
+    result.push(writeIndentation(options2, depth, false));
+  }
+  return result.join("");
+}
+function writeDeclaration(declaration2, options2, depth) {
+  currentElement = declaration2;
+  currentElementName = "xml";
+  return options2.ignoreDeclaration ? "" : "<?xml" + writeAttributes(declaration2[options2.attributesKey], options2, depth) + "?>";
+}
+function writeInstruction(instruction, options2, depth) {
+  if (options2.ignoreInstruction) {
+    return "";
+  }
+  var key;
+  for (key in instruction) {
+    if (instruction.hasOwnProperty(key)) {
+      break;
+    }
+  }
+  var instructionName = "instructionNameFn" in options2 ? options2.instructionNameFn(key, instruction[key], currentElementName, currentElement) : key;
+  if (typeof instruction[key] === "object") {
+    currentElement = instruction;
+    currentElementName = instructionName;
+    return "<?" + instructionName + writeAttributes(instruction[key][options2.attributesKey], options2, depth) + "?>";
+  } else {
+    var instructionValue = instruction[key] ? instruction[key] : "";
+    if ("instructionFn" in options2)
+      instructionValue = options2.instructionFn(instructionValue, key, currentElementName, currentElement);
+    return "<?" + instructionName + (instructionValue ? " " + instructionValue : "") + "?>";
+  }
+}
+function writeComment(comment2, options2) {
+  return options2.ignoreComment ? "" : "<!--" + ("commentFn" in options2 ? options2.commentFn(comment2, currentElementName, currentElement) : comment2) + "-->";
+}
+function writeCdata(cdata, options2) {
+  return options2.ignoreCdata ? "" : "<![CDATA[" + ("cdataFn" in options2 ? options2.cdataFn(cdata, currentElementName, currentElement) : cdata.replace("]]>", "]]]]><![CDATA[>")) + "]]>";
+}
+function writeDoctype(doctype, options2) {
+  return options2.ignoreDoctype ? "" : "<!DOCTYPE " + ("doctypeFn" in options2 ? options2.doctypeFn(doctype, currentElementName, currentElement) : doctype) + ">";
+}
+function writeText(text, options2) {
+  if (options2.ignoreText)
+    return "";
+  text = "" + text;
+  text = text.replace(/&amp;/g, "&");
+  text = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return "textFn" in options2 ? options2.textFn(text, currentElementName, currentElement) : text;
+}
+function hasContent(element, options2) {
+  var i2;
+  if (element.elements && element.elements.length) {
+    for (i2 = 0; i2 < element.elements.length; ++i2) {
+      switch (element.elements[i2][options2.typeKey]) {
+        case "text":
+          if (options2.indentText) {
+            return true;
+          }
+          break;
+        case "cdata":
+          if (options2.indentCdata) {
+            return true;
+          }
+          break;
+        case "instruction":
+          if (options2.indentInstruction) {
+            return true;
+          }
+          break;
+        case "doctype":
+        case "comment":
+        case "element":
+          return true;
+        default:
+          return true;
+      }
+    }
+  }
+  return false;
+}
+function writeElement(element, options2, depth) {
+  currentElement = element;
+  currentElementName = element.name;
+  var xml = [], elementName = "elementNameFn" in options2 ? options2.elementNameFn(element.name, element) : element.name;
+  xml.push("<" + elementName);
+  if (element[options2.attributesKey]) {
+    xml.push(writeAttributes(element[options2.attributesKey], options2, depth));
+  }
+  var withClosingTag = element[options2.elementsKey] && element[options2.elementsKey].length || element[options2.attributesKey] && element[options2.attributesKey]["xml:space"] === "preserve";
+  if (!withClosingTag) {
+    if ("fullTagEmptyElementFn" in options2) {
+      withClosingTag = options2.fullTagEmptyElementFn(element.name, element);
+    } else {
+      withClosingTag = options2.fullTagEmptyElement;
+    }
+  }
+  if (withClosingTag) {
+    xml.push(">");
+    if (element[options2.elementsKey] && element[options2.elementsKey].length) {
+      xml.push(writeElements(element[options2.elementsKey], options2, depth + 1));
+      currentElement = element;
+      currentElementName = element.name;
+    }
+    xml.push(options2.spaces && hasContent(element, options2) ? "\n" + Array(depth + 1).join(options2.spaces) : "");
+    xml.push("</" + elementName + ">");
+  } else {
+    xml.push("/>");
+  }
+  return xml.join("");
+}
+function writeElements(elements, options2, depth, firstLine) {
+  return elements.reduce(function(xml, element) {
+    var indent = writeIndentation(options2, depth, firstLine && !xml);
+    switch (element.type) {
+      case "element":
+        return xml + indent + writeElement(element, options2, depth);
+      case "comment":
+        return xml + indent + writeComment(element[options2.commentKey], options2);
+      case "doctype":
+        return xml + indent + writeDoctype(element[options2.doctypeKey], options2);
+      case "cdata":
+        return xml + (options2.indentCdata ? indent : "") + writeCdata(element[options2.cdataKey], options2);
+      case "text":
+        return xml + (options2.indentText ? indent : "") + writeText(element[options2.textKey], options2);
+      case "instruction":
+        var instruction = {};
+        instruction[element[options2.nameKey]] = element[options2.attributesKey] ? element : element[options2.instructionKey];
+        return xml + (options2.indentInstruction ? indent : "") + writeInstruction(instruction, options2, depth);
+    }
+  }, "");
+}
+function hasContentCompact(element, options2, anyContent) {
+  var key;
+  for (key in element) {
+    if (element.hasOwnProperty(key)) {
+      switch (key) {
+        case options2.parentKey:
+        case options2.attributesKey:
+          break;
+        case options2.textKey:
+          if (options2.indentText || anyContent) {
+            return true;
+          }
+          break;
+        case options2.cdataKey:
+          if (options2.indentCdata || anyContent) {
+            return true;
+          }
+          break;
+        case options2.instructionKey:
+          if (options2.indentInstruction || anyContent) {
+            return true;
+          }
+          break;
+        case options2.doctypeKey:
+        case options2.commentKey:
+          return true;
+        default:
+          return true;
+      }
+    }
+  }
+  return false;
+}
+function writeElementCompact(element, name, options2, depth, indent) {
+  currentElement = element;
+  currentElementName = name;
+  var elementName = "elementNameFn" in options2 ? options2.elementNameFn(name, element) : name;
+  if (typeof element === "undefined" || element === null || element === "") {
+    return "fullTagEmptyElementFn" in options2 && options2.fullTagEmptyElementFn(name, element) || options2.fullTagEmptyElement ? "<" + elementName + "></" + elementName + ">" : "<" + elementName + "/>";
+  }
+  var xml = [];
+  if (name) {
+    xml.push("<" + elementName);
+    if (typeof element !== "object") {
+      xml.push(">" + writeText(element, options2) + "</" + elementName + ">");
+      return xml.join("");
+    }
+    if (element[options2.attributesKey]) {
+      xml.push(writeAttributes(element[options2.attributesKey], options2, depth));
+    }
+    var withClosingTag = hasContentCompact(element, options2, true) || element[options2.attributesKey] && element[options2.attributesKey]["xml:space"] === "preserve";
+    if (!withClosingTag) {
+      if ("fullTagEmptyElementFn" in options2) {
+        withClosingTag = options2.fullTagEmptyElementFn(name, element);
+      } else {
+        withClosingTag = options2.fullTagEmptyElement;
+      }
+    }
+    if (withClosingTag) {
+      xml.push(">");
+    } else {
+      xml.push("/>");
+      return xml.join("");
+    }
+  }
+  xml.push(writeElementsCompact(element, options2, depth + 1, false));
+  currentElement = element;
+  currentElementName = name;
+  if (name) {
+    xml.push((indent ? writeIndentation(options2, depth, false) : "") + "</" + elementName + ">");
+  }
+  return xml.join("");
+}
+function writeElementsCompact(element, options2, depth, firstLine) {
+  var i2, key, nodes, xml = [];
+  for (key in element) {
+    if (element.hasOwnProperty(key)) {
+      nodes = isArray$1(element[key]) ? element[key] : [element[key]];
+      for (i2 = 0; i2 < nodes.length; ++i2) {
+        switch (key) {
+          case options2.declarationKey:
+            xml.push(writeDeclaration(nodes[i2], options2, depth));
+            break;
+          case options2.instructionKey:
+            xml.push((options2.indentInstruction ? writeIndentation(options2, depth, firstLine) : "") + writeInstruction(nodes[i2], options2, depth));
+            break;
+          case options2.attributesKey:
+          case options2.parentKey:
+            break;
+          case options2.textKey:
+            xml.push((options2.indentText ? writeIndentation(options2, depth, firstLine) : "") + writeText(nodes[i2], options2));
+            break;
+          case options2.cdataKey:
+            xml.push((options2.indentCdata ? writeIndentation(options2, depth, firstLine) : "") + writeCdata(nodes[i2], options2));
+            break;
+          case options2.doctypeKey:
+            xml.push(writeIndentation(options2, depth, firstLine) + writeDoctype(nodes[i2], options2));
+            break;
+          case options2.commentKey:
+            xml.push(writeIndentation(options2, depth, firstLine) + writeComment(nodes[i2], options2));
+            break;
+          default:
+            xml.push(writeIndentation(options2, depth, firstLine) + writeElementCompact(nodes[i2], key, options2, depth, hasContentCompact(nodes[i2], options2)));
+        }
+        firstLine = firstLine && !xml.length;
+      }
+    }
+  }
+  return xml.join("");
+}
+var js2xml$2 = function(js, options2) {
+  options2 = validateOptions(options2);
+  var xml = [];
+  currentElement = js;
+  currentElementName = "_root_";
+  if (options2.compact) {
+    xml.push(writeElementsCompact(js, options2, 0, true));
+  } else {
+    if (js[options2.declarationKey]) {
+      xml.push(writeDeclaration(js[options2.declarationKey], options2, 0));
+    }
+    if (js[options2.elementsKey] && js[options2.elementsKey].length) {
+      xml.push(writeElements(js[options2.elementsKey], options2, 0, !xml.length));
+    }
+  }
+  return xml.join("");
+};
+var js2xml$1 = js2xml$2;
+var json2xml$1 = function(json, options2) {
+  if (json instanceof Buffer) {
+    json = json.toString();
+  }
+  var js = null;
+  if (typeof json === "string") {
+    try {
+      js = JSON.parse(json);
+    } catch (e2) {
+      throw new Error("The JSON structure is invalid");
+    }
+  } else {
+    js = json;
+  }
+  return js2xml$1(js, options2);
+};
+var xml2js = xml2js$2;
+var xml2json = xml2json$1;
+var js2xml = js2xml$2;
+var json2xml = json2xml$1;
+var lib$1 = {
+  xml2js,
+  xml2json,
+  js2xml,
+  json2xml
+};
+function TableSessions({ url }) {
+  const [data2, setData] = react.exports.useState([]);
+  const [isLoading, setIsLoading] = react.exports.useState(true);
+  const [error, setError] = react.exports.useState(null);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const xmlData = await response.text();
+      const jsonData = lib$1.xml2json(xmlData, { compact: true, spaces: 4 });
+      setData(JSON.parse(jsonData));
+    } catch (error2) {
+      setError(error2.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  react.exports.useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1e4);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [url]);
+  if (isLoading) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Loading...");
+  }
+  if (error) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Error: ", error);
+  }
+  if (!data2 || data2.length === 0) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "No data available");
+  }
+  let items = data2.body.sessions.item;
+  if (!Array.isArray(items)) {
+    items = items ? [items] : [];
+  }
+  const p2 = items.map((dataitem, index2) => ({
+    index: index2 + 1,
+    name: dataitem._attributes.Name,
+    encoder: dataitem._attributes.Encoder,
+    decoder: dataitem._attributes.Decoder,
+    live: dataitem._attributes.Live,
+    ports: dataitem._attributes.Ports,
+    created: dataitem._attributes.Created,
+    expires: dataitem._attributes.Expires,
+    params: dataitem._attributes.Params
+  }));
+  return /* @__PURE__ */ React$1.createElement("table", null, /* @__PURE__ */ React$1.createElement("thead", null, /* @__PURE__ */ React$1.createElement("tr", null, /* @__PURE__ */ React$1.createElement("th", null, "#"), /* @__PURE__ */ React$1.createElement("th", null, "NAME"), /* @__PURE__ */ React$1.createElement("th", null, "Encoder"), /* @__PURE__ */ React$1.createElement("th", null, "Decoder"), /* @__PURE__ */ React$1.createElement("th", null, "Live"), /* @__PURE__ */ React$1.createElement("th", null, "Ports"), /* @__PURE__ */ React$1.createElement("th", null, "Created"), /* @__PURE__ */ React$1.createElement("th", null, "Expires"), /* @__PURE__ */ React$1.createElement("th", null, "Params"))), /* @__PURE__ */ React$1.createElement("tbody", null, p2.map((dataitem, index2) => /* @__PURE__ */ React$1.createElement("tr", {
+    key: index2
+  }, /* @__PURE__ */ React$1.createElement("td", null, dataitem.index), /* @__PURE__ */ React$1.createElement("td", null, dataitem.name), /* @__PURE__ */ React$1.createElement("td", null, dataitem.encoder), /* @__PURE__ */ React$1.createElement("td", null, dataitem.decoder), /* @__PURE__ */ React$1.createElement("td", null, dataitem.live), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ports), /* @__PURE__ */ React$1.createElement("td", null, dataitem.created), /* @__PURE__ */ React$1.createElement("td", null, dataitem.expires), /* @__PURE__ */ React$1.createElement("td", null, dataitem.params)))));
+}
+function TableDecoders({ url }) {
+  const [data2, setData] = react.exports.useState([]);
+  const [isLoading, setIsLoading] = react.exports.useState(true);
+  const [error, setError] = react.exports.useState(null);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const xmlData = await response.text();
+      const jsonData = lib$1.xml2json(xmlData, { compact: true, spaces: 4 });
+      setData(JSON.parse(jsonData));
+    } catch (error2) {
+      setError(error2.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  react.exports.useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1e4);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [url]);
+  if (isLoading) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Loading...");
+  }
+  if (error) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Error: ", error);
+  }
+  if (!data2 || data2.length === 0) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "No data available");
+  }
+  let items = data2.body.decoders.item;
+  if (!Array.isArray(items)) {
+    items = items ? [items] : [];
+  }
+  const p2 = items.map((dataitem, index2) => ({
+    index: index2 + 1,
+    inport: dataitem._attributes.inport,
+    sid: dataitem._attributes.sid,
+    srvport: dataitem._attributes.srvport,
+    bitrate: dataitem._attributes.bitrate,
+    lastactive: dataitem._attributes.lastactive,
+    max_timeout: dataitem._attributes.max_timeout,
+    total: dataitem._attributes.total,
+    total_to: dataitem._attributes.total_to,
+    percent: dataitem._attributes.percent,
+    rtt: dataitem._attributes.rtt,
+    rtt_avg: dataitem._attributes.rtt_avg,
+    rtt_peak: dataitem._attributes.rtt_peak,
+    act_to: dataitem._attributes.act_to
+  }));
+  return /* @__PURE__ */ React$1.createElement("table", null, /* @__PURE__ */ React$1.createElement("thead", null, /* @__PURE__ */ React$1.createElement("tr", null, /* @__PURE__ */ React$1.createElement("th", null, "#"), /* @__PURE__ */ React$1.createElement("th", null, "sid"), /* @__PURE__ */ React$1.createElement("th", null, "server"), /* @__PURE__ */ React$1.createElement("th", null, "port"), /* @__PURE__ */ React$1.createElement("th", null, "bitrate"), /* @__PURE__ */ React$1.createElement("th", null, "last active, s"), /* @__PURE__ */ React$1.createElement("th", null, "max timeout, s"), /* @__PURE__ */ React$1.createElement("th", null, "Packets"), /* @__PURE__ */ React$1.createElement("th", null, "Resent"), /* @__PURE__ */ React$1.createElement("th", null, "%"), /* @__PURE__ */ React$1.createElement("th", null, "RTT"), /* @__PURE__ */ React$1.createElement("th", null, "Avg"), /* @__PURE__ */ React$1.createElement("th", null, "Peak"), /* @__PURE__ */ React$1.createElement("th", null, "Ack timeout"))), /* @__PURE__ */ React$1.createElement("tbody", null, p2.map((dataitem, index2) => /* @__PURE__ */ React$1.createElement("tr", {
+    key: index2
+  }, /* @__PURE__ */ React$1.createElement("td", null, dataitem.index, " "), /* @__PURE__ */ React$1.createElement("td", null, dataitem.inport), /* @__PURE__ */ React$1.createElement("td", null, dataitem.sid), /* @__PURE__ */ React$1.createElement("td", null, dataitem.srvport), /* @__PURE__ */ React$1.createElement("td", null, dataitem.bitrate), /* @__PURE__ */ React$1.createElement("td", null, dataitem.lastactive), /* @__PURE__ */ React$1.createElement("td", null, dataitem.max_timeout), /* @__PURE__ */ React$1.createElement("td", null, dataitem.total), /* @__PURE__ */ React$1.createElement("td", null, dataitem.total_to), /* @__PURE__ */ React$1.createElement("td", null, dataitem.percent), /* @__PURE__ */ React$1.createElement("td", null, dataitem.rtt), /* @__PURE__ */ React$1.createElement("td", null, dataitem.rtt_avg), /* @__PURE__ */ React$1.createElement("td", null, dataitem.rtt_peak), /* @__PURE__ */ React$1.createElement("td", null, dataitem.act_to)))));
+}
+function TablePorts({ url }) {
+  const [data2, setData] = react.exports.useState([]);
+  const [isLoading, setIsLoading] = react.exports.useState(true);
+  const [error, setError] = react.exports.useState(null);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const xmlData = await response.text();
+      const jsonData = lib$1.xml2json(xmlData, { compact: true, spaces: 4 });
+      setData(JSON.parse(jsonData));
+    } catch (error2) {
+      setError(error2.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  react.exports.useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1e4);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [url]);
+  if (isLoading) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Loading...");
+  }
+  if (error) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Error: ", error);
+  }
+  if (!data2 || data2.length === 0) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "No data available");
+  }
+  let items = data2.body.ports.item;
+  if (!Array.isArray(items)) {
+    items = items ? [items] : [];
+  }
+  const p2 = items.map((inport, index2) => ({
+    index: index2 + 1,
+    port: inport._attributes.port,
+    encoders: inport._attributes.encoders,
+    bitrate_in: inport._attributes.bitrate_in,
+    bitrate_out: inport._attributes.bitrate_out
+  }));
+  return /* @__PURE__ */ React$1.createElement("table", null, /* @__PURE__ */ React$1.createElement("thead", null, /* @__PURE__ */ React$1.createElement("tr", null, /* @__PURE__ */ React$1.createElement("th", null, "#"), /* @__PURE__ */ React$1.createElement("th", null, "Port"), /* @__PURE__ */ React$1.createElement("th", null, "Encoders"), /* @__PURE__ */ React$1.createElement("th", null, "Bitrate In"), /* @__PURE__ */ React$1.createElement("th", null, "Bitrate Out"))), /* @__PURE__ */ React$1.createElement("tbody", null, p2.map((port, index2) => /* @__PURE__ */ React$1.createElement("tr", {
+    key: index2
+  }, /* @__PURE__ */ React$1.createElement("td", null, " ", port.index, " "), /* @__PURE__ */ React$1.createElement("td", null, port.port), /* @__PURE__ */ React$1.createElement("td", null, port.encoders), /* @__PURE__ */ React$1.createElement("td", null, port.bitrate_in), /* @__PURE__ */ React$1.createElement("td", null, port.bitrate_out)))));
+}
+function TableStreams({ url }) {
+  const [data2, setData] = react.exports.useState([]);
+  const [isLoading, setIsLoading] = react.exports.useState(true);
+  const [error, setError] = react.exports.useState(null);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const xmlData = await response.text();
+      const jsonData = lib$1.xml2json(xmlData, { compact: true, spaces: 4 });
+      setData(JSON.parse(jsonData));
+    } catch (error2) {
+      setError(error2.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  react.exports.useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1e4);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [url]);
+  if (isLoading) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Loading...");
+  }
+  if (error) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Error: ", error);
+  }
+  if (!data2 || data2.length === 0) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "No data available");
+  }
+  let items = data2.body.streams.item;
+  if (!Array.isArray(items)) {
+    items = items ? [items] : [];
+  }
+  const p2 = items.map((dataitem, index2) => ({
+    index: index2 + 1,
+    encsid: dataitem._attributes.encsid,
+    title: dataitem._attributes.title,
+    bitrate: dataitem._attributes.bitrate,
+    resolution: dataitem._attributes.resolution,
+    fps: dataitem._attributes.fps,
+    snd: dataitem._attributes.snd,
+    ch: dataitem._attributes.ch,
+    hw: dataitem._attributes.hw,
+    ver: dataitem._attributes.ver,
+    ip: dataitem._attributes.ip,
+    port: dataitem._attributes.port,
+    time: dataitem._attributes.time
+  }));
+  return /* @__PURE__ */ React$1.createElement("table", null, /* @__PURE__ */ React$1.createElement("thead", null, /* @__PURE__ */ React$1.createElement("tr", null, /* @__PURE__ */ React$1.createElement("th", null, "#"), /* @__PURE__ */ React$1.createElement("th", null, "Encoder sid"), /* @__PURE__ */ React$1.createElement("th", null, "Title"), /* @__PURE__ */ React$1.createElement("th", null, "Bitrate"), /* @__PURE__ */ React$1.createElement("th", null, "Resolution"), /* @__PURE__ */ React$1.createElement("th", null, "FPS"), /* @__PURE__ */ React$1.createElement("th", null, "Sound"), /* @__PURE__ */ React$1.createElement("th", null, "Channels"), /* @__PURE__ */ React$1.createElement("th", null, "OS"), /* @__PURE__ */ React$1.createElement("th", null, "Version"), /* @__PURE__ */ React$1.createElement("th", null, "IP"), /* @__PURE__ */ React$1.createElement("th", null, "Port"), /* @__PURE__ */ React$1.createElement("th", null, "Time"))), /* @__PURE__ */ React$1.createElement("tbody", null, p2.map((dataitem, index2) => /* @__PURE__ */ React$1.createElement("tr", {
+    key: index2
+  }, /* @__PURE__ */ React$1.createElement("td", null, dataitem.index, " "), /* @__PURE__ */ React$1.createElement("td", null, dataitem.encsid), /* @__PURE__ */ React$1.createElement("td", null, dataitem.title), /* @__PURE__ */ React$1.createElement("td", null, dataitem.bitrate), /* @__PURE__ */ React$1.createElement("td", null, dataitem.resolution), /* @__PURE__ */ React$1.createElement("td", null, dataitem.fps), /* @__PURE__ */ React$1.createElement("td", null, dataitem.snd), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ch), /* @__PURE__ */ React$1.createElement("td", null, dataitem.hw), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ver), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ip), /* @__PURE__ */ React$1.createElement("td", null, dataitem.port), /* @__PURE__ */ React$1.createElement("td", null, dataitem.time)))));
+}
+function TableDataUsage({ url }) {
+  const [data2, setData] = react.exports.useState([]);
+  const [isLoading, setIsLoading] = react.exports.useState(true);
+  const [error, setError] = react.exports.useState(null);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const xmlData = await response.text();
+      const jsonData = lib$1.xml2json(xmlData, { compact: true, spaces: 4 });
+      setData(JSON.parse(jsonData));
+    } catch (error2) {
+      setError(error2.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  react.exports.useEffect(() => {
+    fetchData();
+    const intervalId = setInterval(() => {
+      fetchData();
+    }, 1e4);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [url]);
+  if (isLoading) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Loading...");
+  }
+  if (error) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "Error: ", error);
+  }
+  if (!data2 || data2.length === 0) {
+    return /* @__PURE__ */ React$1.createElement("p", null, "No data available");
+  }
+  let items = data2.body.data.item;
+  if (!Array.isArray(items)) {
+    items = items ? [items] : [];
+  }
+  const p2 = items.map((dataitem, index2) => ({
+    index: index2 + 1,
+    ip: dataitem._attributes.ip,
+    dataSent: dataitem._attributes.dataSent,
+    timeRunning: dataitem._attributes.timeRunning,
+    firstActive: dataitem._attributes.firstActive,
+    lastActive: dataitem._attributes.lastActive
+  }));
+  return /* @__PURE__ */ React$1.createElement("table", null, /* @__PURE__ */ React$1.createElement("thead", null, /* @__PURE__ */ React$1.createElement("tr", null, /* @__PURE__ */ React$1.createElement("th", null, "#"), /* @__PURE__ */ React$1.createElement("th", null, "Data"), /* @__PURE__ */ React$1.createElement("th", null, "Time"), /* @__PURE__ */ React$1.createElement("th", null, "First Active"), /* @__PURE__ */ React$1.createElement("th", null, "Last Active"))), /* @__PURE__ */ React$1.createElement("tbody", null, p2.map((dataitem, index2) => /* @__PURE__ */ React$1.createElement("tr", {
+    key: index2
+  }, /* @__PURE__ */ React$1.createElement("td", null, dataitem.index), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ip), /* @__PURE__ */ React$1.createElement("td", null, dataitem.dataSent), /* @__PURE__ */ React$1.createElement("td", null, dataitem.timeRunning), /* @__PURE__ */ React$1.createElement("td", null, dataitem.firstActive), /* @__PURE__ */ React$1.createElement("td", null, dataitem.lastActive)))));
+}
+function ServerControl(props) {
+  let show0 = (props.tableset & 1) === 1;
+  let show1 = (props.tableset & 2) === 2;
+  let show2 = (props.tableset & 4) === 4;
+  let show3 = (props.tableset & 8) === 8;
+  let show4 = (props.tableset & 16) === 16;
+  let login = props.login;
+  let password = props.password;
+  const PREFIX = "https://" + props.server + "/light/";
+  const POSTFIX = "?login=" + login + "&hashedPass=" + password;
+  const DATA_USAGE_URL = PREFIX + "xmlDataUsage.php" + POSTFIX;
+  const DECODERS_URL = PREFIX + "xmlGetDecoders.php" + POSTFIX;
+  const SESSIONS_URL = PREFIX + "xmlGetSessions.php" + POSTFIX;
+  const PORTS_URL = PREFIX + "xmlIncomingPorts.php" + POSTFIX;
+  const STREAMS_URL = PREFIX + "xmlStreams.php" + POSTFIX;
+  return /* @__PURE__ */ React$1.createElement("div", {
+    className: "ServerControl"
+  }, /* @__PURE__ */ React$1.createElement("h3", null, "Streambox Light Server"), show0 && /* @__PURE__ */ React$1.createElement("div", null, /* @__PURE__ */ React$1.createElement("h4", null, "Available Encoder/Decoder Session IDs:"), /* @__PURE__ */ React$1.createElement(TableSessions, {
+    url: SESSIONS_URL
+  })), show1 && /* @__PURE__ */ React$1.createElement("div", null, /* @__PURE__ */ React$1.createElement("h4", null, "Streaming to Decoders:"), /* @__PURE__ */ React$1.createElement(TableDecoders, {
+    url: DECODERS_URL
+  })), show2 && /* @__PURE__ */ React$1.createElement("div", null, /* @__PURE__ */ React$1.createElement("h4", null, "Incoming ports:"), /* @__PURE__ */ React$1.createElement(TablePorts, {
+    url: PORTS_URL
+  })), show3 && /* @__PURE__ */ React$1.createElement("div", null, /* @__PURE__ */ React$1.createElement("h4", null, "Streams info:"), /* @__PURE__ */ React$1.createElement(TableStreams, {
+    url: STREAMS_URL
+  })), show4 && /* @__PURE__ */ React$1.createElement("div", null, /* @__PURE__ */ React$1.createElement("h4", null, "Data Usage Records:"), /* @__PURE__ */ React$1.createElement(TableDataUsage, {
+    url: DATA_USAGE_URL
+  })));
 }
 const endpoint$1 = location.origin;
 function Container(props) {
@@ -15297,6 +17675,13 @@ function Container(props) {
         customPort,
         handleCreateNewSessionBtn: props.handleCreateNewSessionBtn
       });
+    } else if (containerType === "serverControl") {
+      mappedFields = /* @__PURE__ */ React$1.createElement(ServerControl, {
+        tableset: 31,
+        server: getServerURL(),
+        login: localStorage.getItem("cloudLogin"),
+        password: localStorage.getItem("cloudPass")
+      });
     }
   }
   return isModule ? /* @__PURE__ */ React$1.createElement("div", {
@@ -15460,9 +17845,7 @@ function App(props) {
             let login = localStorage.getItem("cloudLogin");
             let hashedPass = localStorage.getItem("cloudPass");
             let response = await fetch(
-              `https://${localStorage.getItem(
-                "cloudServer"
-              )}.streambox.com/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
+              `https://${getServerURL()}/ls/GetSessionDashboardXML.php?SESSION_DRM=${sessionDRM}&login=${login}&hashedPass=${hashedPass}`,
               {
                 method: "GET",
                 signal: controller.signal,
@@ -15528,9 +17911,7 @@ function App(props) {
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 15e3);
         let response = await fetch(
-          `https://${localStorage.getItem(
-            "cloudServer"
-          )}.streambox.com/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
+          `https://${getServerURL()}/ls/CreateNewSessionXML.php?USER_ID=${userId}&SESSION_NAME=${sessionName}&login=${login}&hashedPass=${hashedPass}`,
           {
             method: "GET",
             signal: controller.signal,
@@ -19205,12 +21586,16 @@ function Settings(props) {
   let serverList = [];
   {
     serverList = [
+      "LiveUS",
       "LiveUSEast",
       "LivePOST",
       "LiveJP",
       "LiveAU",
-      "LiveIN",
+      "LiveSG",
       "LiveEU",
+      "LiveIN",
+      "LiveSA",
+      "LiveDE",
       "Custom"
     ];
   }
@@ -19243,7 +21628,7 @@ function Settings(props) {
     onChange: (e2) => processCustom(e2.target.value)
   }, serverOptions)), needCustom && /* @__PURE__ */ React$1.createElement("input", {
     type: "text",
-    className: "custom-server",
+    className: "login-input",
     value: strCustomServer,
     onChange: (e2) => setStrCustomServer(e2.target.value)
   }), /* @__PURE__ */ React$1.createElement("div", {

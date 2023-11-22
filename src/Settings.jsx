@@ -9,7 +9,6 @@ import "prismjs/components/prism-clike"
 import "prismjs/components/prism-javascript"
 import "prismjs/themes/prism.css"
 
-
 export default function Settings(props) {
     const [templateOptions, setTemplateOptions] = useState([])
     const [currentTemplateName, setCurrentTemplateName] = useState(
@@ -214,7 +213,6 @@ export default function Settings(props) {
         const controller = new AbortController()
         //timeout if no signal for 15 seconds
         const timeoutId = setTimeout(() => controller.abort(), 15000)
-
         let response = await fetch(
             `https://${getServerURL()}/ls/VerifyLoginXML.php?login=${login}&hashedPass=${hashedPass}`,
             {
@@ -593,9 +591,8 @@ export default function Settings(props) {
 
     let serverList = []
 
-    if (isLocalDev) {
+    if (1 || isLocalDev) {
         serverList = [
-            "TL1",
             "LiveUS",
             "LiveUSEast",
             "LivePOST",
@@ -606,7 +603,7 @@ export default function Settings(props) {
             "LiveIN",
             "LiveSA",
             "LiveDE",
-            "Custom",
+            "Custom"
         ]
     } else {
         serverList = [
@@ -656,7 +653,7 @@ export default function Settings(props) {
                             { needCustom &&
                             <input
                                 type="text"
-                                className="custom-server"
+                                className="login-input"
                                 value={strCustomServer}
                                 onChange={(e) => setStrCustomServer(e.target.value)}
                             />

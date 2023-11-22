@@ -7,6 +7,8 @@ import Select from "./Select"
 import Form from "./Form"
 import AudioMeter from "./AudioMeters"
 import SessionsPanel from "./SessionsPanel"
+import ServerControl from "./ServerControl"
+
 import {
     isLocalDev,
     POSTData,
@@ -14,6 +16,7 @@ import {
     setDecoderIPToServerIP,
     setNetwork1Api,
     replaceJSONParams,
+    getServerURL,
 } from "../Utils"
 
 const endpoint = location.origin
@@ -642,6 +645,16 @@ export default function Container(props) {
                     customHost={customHost}
                     customPort={customPort}
                     handleCreateNewSessionBtn={props.handleCreateNewSessionBtn}
+                />
+            )
+        } else if (containerType === "serverControl" ) {
+
+			mappedFields = (
+                <ServerControl
+                    tableset={31}
+                    server={getServerURL()}
+                    login={localStorage.getItem("cloudLogin")}
+                    password={localStorage.getItem("cloudPass")}
                 />
             )
         }
