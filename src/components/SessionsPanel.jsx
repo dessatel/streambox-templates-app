@@ -299,7 +299,8 @@ export default function SessionsPanel(props) {
             )
         } else {
             response = await fetch(
-                `${endpoint}/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
+                `https://broker.streambox.com/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
+
                     ","
                 )}&hostName=${encodeURIComponent(
                     hostName
