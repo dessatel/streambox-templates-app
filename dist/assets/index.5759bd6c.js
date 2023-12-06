@@ -14297,7 +14297,7 @@ function SessionsPanel(props) {
     let response = "";
     {
       response = await fetch(
-        `${endpoint2}/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
+        `https://broker.streambox.com/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
           ","
         )}&hostName=${encodeURIComponent(
           hostName
