@@ -289,7 +289,7 @@ export default function SessionsPanel(props) {
         let response = ""
         if (isLocalDev) {
             response = await fetch(
-                `http://localhost:5005/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
+                `https://broker.streambox.com/ls/sendEmail.php?emailAddresses=${emailAddresses.join(
                     ","
                 )}&hostName=${encodeURIComponent(
                     hostName
@@ -299,7 +299,7 @@ export default function SessionsPanel(props) {
             )
         } else {
             response = await fetch(
-                `https://broker.streambox.com/sbuiauth/sendEmail.php?emailAddresses=${emailAddresses.join(
+                `https://broker.streambox.com/ls/sendEmail.php?emailAddresses=${emailAddresses.join(
 
                     ","
                 )}&hostName=${encodeURIComponent(
