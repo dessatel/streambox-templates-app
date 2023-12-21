@@ -7368,7 +7368,7 @@ async function attemptLogin() {
       }
     }
   ).catch((e2) => {
-    document.querySelector(".no-session-msg").textContent = "The Server is Down...";
+    document.querySelector(".no-session-msg").textContent = document.querySelector(".no-session-msg").innerHTML = 'Not logged into Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
     console.log("The server is down");
   });
   let result = await response.text();
@@ -17920,7 +17920,7 @@ function App(props) {
             }
           }
         ).catch((e2) => {
-          document.querySelector(".no-session-msg").textContent = "The Server is Down...";
+          document.querySelector(".no-session-msg").textContent = 'Unable to connect to Server <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
         });
         const xmlResponse = await response.text();
         let parser = new DOMParser();
@@ -21303,7 +21303,7 @@ function Settings(props) {
         }
       }
     ).catch((e22) => {
-      document.querySelector("#login-status").textContent = "The Server is Down...";
+      document.querySelector("#login-status").textContent = "Unable to connect to server";
       document.querySelector("#login-status").style.color = "red";
     });
     let result = await response.text();

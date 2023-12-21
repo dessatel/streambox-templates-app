@@ -318,7 +318,8 @@ export default function App(props) {
                     }
                 ).catch((e) => {
                     document.querySelector(".no-session-msg").textContent =
-                        "The Server is Down..."
+                        //"The Server is Down..."
+                        'Unable to connect to Server <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
                 })
                 const xmlResponse = await response.text()
 

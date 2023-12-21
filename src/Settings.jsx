@@ -224,7 +224,8 @@ export default function Settings(props) {
             }
         ).catch((e) => {
             document.querySelector("#login-status").textContent =
-                "The Server is Down..."
+            //    "The Server is Down..."
+            "Unable to connect to server"  
             document.querySelector("#login-status").style.color = "red"
         })
 
