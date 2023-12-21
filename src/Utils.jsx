@@ -435,11 +435,15 @@ export async function attemptLogin() {
             },
         }
     ).catch((e) => {
-            // document.querySelector(".no-session-msg").textContent =
+            window.CallSettings = function CallSettings()  
+            {
+                props.openSettings()
+            }
+                // document.querySelector(".no-session-msg").textContent =
             //"The Server is Down..."
             document.querySelector(".no-session-msg")
             .innerHTML = 
-            'Not logged into Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
+            'Unable to connect to Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
 
         console.log("The server is down")
     })
