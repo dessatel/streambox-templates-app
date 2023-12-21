@@ -7368,7 +7368,7 @@ async function attemptLogin() {
       }
     }
   ).catch((e2) => {
-    document.querySelector(".no-session-msg").textContent = document.querySelector(".no-session-msg").innerHTML = 'Not logged into Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
+    document.querySelector(".no-session-msg").innerHTML = 'Not logged into Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
     console.log("The server is down");
   });
   let result = await response.text();
@@ -17856,7 +17856,7 @@ function App(props) {
             ).catch((e2) => {
               document.querySelector(
                 ".no-session-msg"
-              ).textContent = "The Server is Down...";
+              ).textContent = "Unable to connect to server - check Settings";
             });
             const xmlResponse = await response.text();
             setSessionDashXML(xmlResponse);

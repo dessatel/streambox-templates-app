@@ -435,7 +435,7 @@ export async function attemptLogin() {
             },
         }
     ).catch((e) => {
-        document.querySelector(".no-session-msg").textContent =
+            // document.querySelector(".no-session-msg").textContent =
             //"The Server is Down..."
             document.querySelector(".no-session-msg")
             .innerHTML = 

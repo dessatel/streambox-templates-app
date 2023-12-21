@@ -231,7 +231,7 @@ export default function App(props) {
                         ).catch((e) => {
                             document.querySelector(
                                 ".no-session-msg"
-                            ).textContent = "The Server is Down..."
+                            ).textContent = "Unable to connect to server - check Settings"
                         })
                         const xmlResponse = await response.text()
                         setSessionDashXML(xmlResponse)
