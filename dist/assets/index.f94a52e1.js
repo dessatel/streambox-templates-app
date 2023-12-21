@@ -6954,8 +6954,8 @@ const __vitePreload = function preload(baseModule, deps) {
     }
   })).then(() => baseModule());
 };
-var Video = React$1.memo(function Video2(props2) {
-  console.log(props2);
+var Video = React$1.memo(function Video2(props) {
+  console.log(props);
   var img_tag = new Image();
   let date = new Date().getTime();
   let previewEndpoint;
@@ -6963,7 +6963,7 @@ var Video = React$1.memo(function Video2(props2) {
   let videoTimer;
   react.exports.useEffect(() => {
     videoTimer = setInterval(() => {
-      previewEndpoint = props2.previewImageRoute + "?t=" + date++;
+      previewEndpoint = props.previewImageRoute + "?t=" + date++;
       img_tag.onload = function() {
         document.getElementById(
           "video-preview"
@@ -6983,27 +6983,27 @@ var Video = React$1.memo(function Video2(props2) {
     className: "video"
   });
 });
-function Button(props2) {
+function Button(props) {
   let button;
   let action;
   let styles2 = {};
   let size = "";
-  if (props2.size) {
-    if (props2.size === "big") {
+  if (props.size) {
+    if (props.size === "big") {
       size = "big-button";
-    } else if (props2.size === "giant") {
+    } else if (props.size === "giant") {
       size = "giant-button";
-    } else if (props2.size === "small") {
+    } else if (props.size === "small") {
       size = "small-button";
     }
   }
-  if (props2.backgroundColor) {
-    styles2 = { backgroundColor: props2.backgroundColor };
+  if (props.backgroundColor) {
+    styles2 = { backgroundColor: props.backgroundColor };
   }
-  if (props2.action === "toggleStreaming") {
-    if (props2.label === "Start Streaming") {
+  if (props.action === "toggleStreaming") {
+    if (props.label === "Start Streaming") {
       action = "startStreaming";
-    } else if (props2.label === "Stop Streaming") {
+    } else if (props.label === "Stop Streaming") {
       action = "stopStreaming";
       styles2 = { backgroundColor: "#b71c1c", color: "white" };
     }
@@ -7011,25 +7011,25 @@ function Button(props2) {
       className: "giant-button-container"
     }, /* @__PURE__ */ React$1.createElement("button", {
       onClick: () => {
-        props2.buttonPressed(
+        props.buttonPressed(
           action,
           null,
-          props2.port,
-          props2.host
+          props.port,
+          props.host
         );
       },
       className: "giant-button",
       style: styles2
-    }, props2.label));
-  } else if (props2.action === "submitLocalForm") {
-    if (props2.postEndpoint) {
+    }, props.label));
+  } else if (props.action === "submitLocalForm") {
+    if (props.postEndpoint) {
       button = /* @__PURE__ */ React$1.createElement("p", {
         className: "fields"
       }, /* @__PURE__ */ React$1.createElement("input", {
-        "data-postendpoint": props2.postEndpoint,
+        "data-postendpoint": props.postEndpoint,
         style: styles2,
         type: "submit",
-        value: props2.label
+        value: props.label
       }));
     } else {
       button = /* @__PURE__ */ React$1.createElement("p", {
@@ -7038,16 +7038,16 @@ function Button(props2) {
         className: "error-text"
       }, "Post endpoint is missing in template is required for forms"));
     }
-  } else if (props2.action === "redirect") {
-    if (props2.redirectURL !== void 0) {
+  } else if (props.action === "redirect") {
+    if (props.redirectURL !== void 0) {
       button = /* @__PURE__ */ React$1.createElement("p", {
         className: "fields"
       }, /* @__PURE__ */ React$1.createElement("a", {
         style: styles2,
         className: size,
         target: "_blank",
-        href: props2.redirectURL
-      }, props2.label));
+        href: props.redirectURL
+      }, props.label));
     } else {
       button = /* @__PURE__ */ React$1.createElement("span", {
         style: { color: "red", marginLeft: "30px" }
@@ -7060,9 +7060,9 @@ function Button(props2) {
       style: styles2,
       className: size,
       onClick: () => {
-        props2.buttonPressed(props2.action);
+        props.buttonPressed(props.action);
       }
-    }, props2.label));
+    }, props.label));
   }
   return button;
 }
@@ -7368,10 +7368,7 @@ async function attemptLogin() {
       }
     }
   ).catch((e2) => {
-    window.CallSettings = function CallSettings() {
-      props.openSettings();
-    };
-    document.querySelector(".no-session-msg").innerHTML = 'Unable to connect to Cloud Server  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
+    document.querySelector(".no-session-msg").innerHTML = "Unable to connect to Cloud Server - check Settings";
     console.log("The server is down");
   });
   let result = await response.text();
@@ -7380,36 +7377,36 @@ async function attemptLogin() {
   let parsedXML = xmlDoc.getElementsByTagName("body")[0];
   return parsedXML.getAttribute("result");
 }
-var Input$1 = React$1.memo(function Input2(props2) {
+var Input$1 = React$1.memo(function Input2(props) {
   return /* @__PURE__ */ React$1.createElement("div", {
     className: "input-div"
   }, /* @__PURE__ */ React$1.createElement("label", {
     className: "input-label"
-  }, props2.label, ": "), /* @__PURE__ */ React$1.createElement("input", {
+  }, props.label, ": "), /* @__PURE__ */ React$1.createElement("input", {
     className: "input-box",
-    name: props2.name,
+    name: props.name,
     type: "input",
-    defaultValue: props2.value
+    defaultValue: props.value
   }), /* @__PURE__ */ React$1.createElement("span", {
     className: "endLabel"
-  }, props2.endLabel));
+  }, props.endLabel));
 });
-var Checkbox = React$1.memo(function Checkbox2(props2) {
+var Checkbox = React$1.memo(function Checkbox2(props) {
   return /* @__PURE__ */ React$1.createElement("div", {
     className: "input-div"
   }, /* @__PURE__ */ React$1.createElement("label", {
     className: "input-label"
-  }, props2.label, ": "), /* @__PURE__ */ React$1.createElement("input", {
+  }, props.label, ": "), /* @__PURE__ */ React$1.createElement("input", {
     type: "checkbox",
-    defaultChecked: props2.checked
+    defaultChecked: props.checked
   }));
 });
-var Select$2 = React$1.memo(function Select2(props2) {
+var Select$2 = React$1.memo(function Select2(props) {
   let options2;
-  let subValues = props2.subValues;
-  let valLabels = props2.valLabels;
-  const presetObj = props2.presetObj;
-  let value = props2.value;
+  let subValues = props.subValues;
+  let valLabels = props.valLabels;
+  const presetObj = props.presetObj;
+  let value = props.value;
   if (presetObj) {
     options2 = presetObj.preset_list.map((preset, index2) => {
       if (preset.pid == localStorage.getItem("presetPID")) {
@@ -7451,17 +7448,17 @@ var Select$2 = React$1.memo(function Select2(props2) {
     className: "label-div input-label"
   }, /* @__PURE__ */ React$1.createElement("label", {
     className: ""
-  }, props2.label, ": ")), presetObj ? /* @__PURE__ */ React$1.createElement("select", {
+  }, props.label, ": ")), presetObj ? /* @__PURE__ */ React$1.createElement("select", {
     id: "preset-select"
   }, options2) : /* @__PURE__ */ React$1.createElement("select", {
-    name: props2.name,
+    name: props.name,
     defaultValue: value
   }, options2));
 });
-function Form(props2) {
+function Form(props) {
   return /* @__PURE__ */ React$1.createElement("form", {
-    onSubmit: props2.handleFormSubmit
-  }, props2.mappedFields);
+    onSubmit: props.handleFormSubmit
+  }, props.mappedFields);
 }
 function SingleMeter({ volLevel, vuIndex }) {
   function vumeter(elem, config) {
@@ -7798,9 +7795,9 @@ function _classCallCheck$3(instance, Constructor) {
     throw new TypeError("Cannot call a class as a function");
   }
 }
-function _defineProperties$1(target, props2) {
-  for (var i2 = 0; i2 < props2.length; i2++) {
-    var descriptor = props2[i2];
+function _defineProperties$1(target, props) {
+  for (var i2 = 0; i2 < props.length; i2++) {
+    var descriptor = props[i2];
     descriptor.enumerable = descriptor.enumerable || false;
     descriptor.configurable = true;
     if ("value" in descriptor)
@@ -8041,11 +8038,11 @@ var length = 0;
 var position = 0;
 var character = 0;
 var characters = "";
-function node(value, root, parent, type, props2, children, length2) {
-  return { value, root, parent, type, props: props2, children, line, column, length: length2, return: "" };
+function node(value, root, parent, type, props, children, length2) {
+  return { value, root, parent, type, props, children, line, column, length: length2, return: "" };
 }
-function copy(root, props2) {
-  return assign(node("", null, null, "", null, null, 0), root, { length: -root.length }, props2);
+function copy(root, props) {
+  return assign(node("", null, null, "", null, null, 0), root, { length: -root.length }, props);
 }
 function char() {
   return character;
@@ -8174,7 +8171,7 @@ function parse(value, root, parent, rule, rules, rulesets, pseudo, points, decla
   var ampersand = 1;
   var character2 = 0;
   var type = "";
-  var props2 = rules;
+  var props = rules;
   var children = rulesets;
   var reference = rule;
   var characters2 = type;
@@ -8228,17 +8225,17 @@ function parse(value, root, parent, rule, rules, rulesets, pseudo, points, decla
           case 59:
             characters2 += ";";
           default:
-            append(reference = ruleset(characters2, root, parent, index2, offset, rules, points, type, props2 = [], children = [], length2), rulesets);
+            append(reference = ruleset(characters2, root, parent, index2, offset, rules, points, type, props = [], children = [], length2), rulesets);
             if (character2 === 123)
               if (offset === 0)
-                parse(characters2, root, reference, reference, props2, rulesets, length2, points, children);
+                parse(characters2, root, reference, reference, props, rulesets, length2, points, children);
               else
                 switch (atrule === 99 && charat(characters2, 3) === 110 ? 100 : atrule) {
                   case 100:
                   case 108:
                   case 109:
                   case 115:
-                    parse(value, reference, reference, rule && append(ruleset(value, reference, reference, 0, 0, rules, points, type, rules, props2 = [], length2), children), rules, children, length2, points, rule ? props2 : children);
+                    parse(value, reference, reference, rule && append(ruleset(value, reference, reference, 0, 0, rules, points, type, rules, props = [], length2), children), rules, children, length2, points, rule ? props : children);
                     break;
                   default:
                     parse(characters2, reference, reference, reference, [""], children, 0, points, children);
@@ -8274,15 +8271,15 @@ function parse(value, root, parent, rule, rules, rulesets, pseudo, points, decla
     }
   return rulesets;
 }
-function ruleset(value, root, parent, index2, offset, rules, points, type, props2, children, length2) {
+function ruleset(value, root, parent, index2, offset, rules, points, type, props, children, length2) {
   var post = offset - 1;
   var rule = offset === 0 ? rules : [""];
   var size = sizeof(rule);
   for (var i2 = 0, j2 = 0, k2 = 0; i2 < index2; ++i2)
     for (var x2 = 0, y2 = substr(value, post + 1, post = abs(j2 = points[i2])), z2 = value; x2 < size; ++x2)
       if (z2 = trim(j2 > 0 ? rule[x2] + " " + y2 : replace(y2, /&\f/g, rule[x2])))
-        props2[k2++] = z2;
-  return node(value, root, parent, offset === 0 ? RULESET : type, props2, children, length2);
+        props[k2++] = z2;
+  return node(value, root, parent, offset === 0 ? RULESET : type, props, children, length2);
 }
 function comment(value, root, parent) {
   return node(value, root, parent, COMMENT, from(char()), substr(value, 2, -2), 0);
@@ -9033,18 +9030,18 @@ var EmotionCacheContext = /* @__PURE__ */ react.exports.createContext(
 );
 EmotionCacheContext.Provider;
 var withEmotionCache = function withEmotionCache2(func) {
-  return /* @__PURE__ */ react.exports.forwardRef(function(props2, ref) {
+  return /* @__PURE__ */ react.exports.forwardRef(function(props, ref) {
     var cache = react.exports.useContext(EmotionCacheContext);
-    return func(props2, cache, ref);
+    return func(props, cache, ref);
   });
 };
 var ThemeContext = /* @__PURE__ */ react.exports.createContext({});
 var typePropName = "__EMOTION_TYPE_PLEASE_DO_NOT_USE__";
-var createEmotionProps = function createEmotionProps2(type, props2) {
+var createEmotionProps = function createEmotionProps2(type, props) {
   var newProps = {};
-  for (var key in props2) {
-    if (hasOwnProperty$1.call(props2, key)) {
-      newProps[key] = props2[key];
+  for (var key in props) {
+    if (hasOwnProperty$1.call(props, key)) {
+      newProps[key] = props[key];
     }
   }
   newProps[typePropName] = type;
@@ -9058,25 +9055,25 @@ var Insertion$1 = function Insertion2(_ref3) {
   });
   return null;
 };
-var Emotion = /* @__PURE__ */ withEmotionCache(function(props2, cache, ref) {
-  var cssProp = props2.css;
+var Emotion = /* @__PURE__ */ withEmotionCache(function(props, cache, ref) {
+  var cssProp = props.css;
   if (typeof cssProp === "string" && cache.registered[cssProp] !== void 0) {
     cssProp = cache.registered[cssProp];
   }
-  var WrappedComponent = props2[typePropName];
+  var WrappedComponent = props[typePropName];
   var registeredStyles = [cssProp];
   var className2 = "";
-  if (typeof props2.className === "string") {
-    className2 = getRegisteredStyles(cache.registered, registeredStyles, props2.className);
-  } else if (props2.className != null) {
-    className2 = props2.className + " ";
+  if (typeof props.className === "string") {
+    className2 = getRegisteredStyles(cache.registered, registeredStyles, props.className);
+  } else if (props.className != null) {
+    className2 = props.className + " ";
   }
   var serialized = serializeStyles(registeredStyles, void 0, react.exports.useContext(ThemeContext));
   className2 += cache.key + "-" + serialized.name;
   var newProps = {};
-  for (var key in props2) {
-    if (hasOwnProperty$1.call(props2, key) && key !== "css" && key !== typePropName && true) {
-      newProps[key] = props2[key];
+  for (var key in props) {
+    if (hasOwnProperty$1.call(props, key) && key !== "css" && key !== typePropName && true) {
+      newProps[key] = props[key];
     }
   }
   newProps.ref = ref;
@@ -9088,15 +9085,15 @@ var Emotion = /* @__PURE__ */ withEmotionCache(function(props2, cache, ref) {
   }), /* @__PURE__ */ react.exports.createElement(WrappedComponent, newProps));
 });
 var Emotion$1 = Emotion;
-var jsx = function jsx2(type, props2) {
+var jsx = function jsx2(type, props) {
   var args = arguments;
-  if (props2 == null || !hasOwnProperty$1.call(props2, "css")) {
+  if (props == null || !hasOwnProperty$1.call(props, "css")) {
     return react.exports.createElement.apply(void 0, args);
   }
   var argsLength = args.length;
   var createElementArgArray = new Array(argsLength);
   createElementArgArray[0] = Emotion$1;
-  createElementArgArray[1] = createEmotionProps(type, props2);
+  createElementArgArray[1] = createEmotionProps(type, props);
   for (var i2 = 2; i2 < argsLength; i2++) {
     createElementArgArray[i2] = args[i2];
   }
@@ -9174,7 +9171,7 @@ var Insertion = function Insertion3(_ref3) {
   });
   return null;
 };
-var ClassNames = /* @__PURE__ */ withEmotionCache(function(props2, cache) {
+var ClassNames = /* @__PURE__ */ withEmotionCache(function(props, cache) {
   var hasRendered = false;
   var serializedArr = [];
   var css4 = function css5() {
@@ -9203,7 +9200,7 @@ var ClassNames = /* @__PURE__ */ withEmotionCache(function(props2, cache) {
     cx,
     theme: react.exports.useContext(ThemeContext)
   };
-  var ele = props2.children(content);
+  var ele = props.children(content);
   hasRendered = true;
   return /* @__PURE__ */ react.exports.createElement(react.exports.Fragment, null, /* @__PURE__ */ react.exports.createElement(Insertion, {
     cache,
@@ -9436,21 +9433,21 @@ var cleanValue = function cleanValue2(value) {
     return [value];
   return [];
 };
-var cleanCommonProps = function cleanCommonProps2(props2) {
-  props2.className;
-  props2.clearValue;
-  props2.cx;
-  props2.getStyles;
-  props2.getValue;
-  props2.hasValue;
-  props2.isMulti;
-  props2.isRtl;
-  props2.options;
-  props2.selectOption;
-  props2.selectProps;
-  props2.setValue;
-  props2.theme;
-  var innerProps = _objectWithoutProperties(props2, _excluded$3);
+var cleanCommonProps = function cleanCommonProps2(props) {
+  props.className;
+  props.clearValue;
+  props.cx;
+  props.getStyles;
+  props.getValue;
+  props.hasValue;
+  props.isMulti;
+  props.isRtl;
+  props.options;
+  props.selectOption;
+  props.selectProps;
+  props.setValue;
+  props.theme;
+  var innerProps = _objectWithoutProperties(props, _excluded$3);
   return _objectSpread2$1({}, innerProps);
 };
 function isDocumentElement(el) {
@@ -9720,8 +9717,8 @@ var menuCSS = function menuCSS2(_ref22) {
   }, _defineProperty$1(_ref3, alignToControl(placement), "100%"), _defineProperty$1(_ref3, "backgroundColor", colors2.neutral0), _defineProperty$1(_ref3, "borderRadius", borderRadius2), _defineProperty$1(_ref3, "boxShadow", "0 0 0 1px hsla(0, 0%, 0%, 0.1), 0 4px 11px hsla(0, 0%, 0%, 0.1)"), _defineProperty$1(_ref3, "marginBottom", spacing2.menuGutter), _defineProperty$1(_ref3, "marginTop", spacing2.menuGutter), _defineProperty$1(_ref3, "position", "absolute"), _defineProperty$1(_ref3, "width", "100%"), _defineProperty$1(_ref3, "zIndex", 1), _ref3;
 };
 var PortalPlacementContext = /* @__PURE__ */ react.exports.createContext(null);
-var MenuPlacer = function MenuPlacer2(props2) {
-  var children = props2.children, minMenuHeight = props2.minMenuHeight, maxMenuHeight = props2.maxMenuHeight, menuPlacement = props2.menuPlacement, menuPosition = props2.menuPosition, menuShouldScrollIntoView = props2.menuShouldScrollIntoView, theme = props2.theme;
+var MenuPlacer = function MenuPlacer2(props) {
+  var children = props.children, minMenuHeight = props.minMenuHeight, maxMenuHeight = props.maxMenuHeight, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, menuShouldScrollIntoView = props.menuShouldScrollIntoView, theme = props.theme;
   var _ref4 = react.exports.useContext(PortalPlacementContext) || {}, setPortalPlacement = _ref4.setPortalPlacement;
   var ref = react.exports.useRef(null);
   var _useState = react.exports.useState(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
@@ -9747,16 +9744,16 @@ var MenuPlacer = function MenuPlacer2(props2) {
   }, [maxMenuHeight, menuPlacement, menuPosition, menuShouldScrollIntoView, minMenuHeight, setPortalPlacement, theme]);
   return children({
     ref,
-    placerProps: _objectSpread2$1(_objectSpread2$1({}, props2), {}, {
+    placerProps: _objectSpread2$1(_objectSpread2$1({}, props), {}, {
       placement: placement || coercePlacement(menuPlacement),
       maxHeight
     })
   });
 };
-var Menu = function Menu2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerRef = props2.innerRef, innerProps = props2.innerProps;
+var Menu = function Menu2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerRef = props.innerRef, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("menu", props2),
+    css: getStyles("menu", props),
     className: cx({
       menu: true
     }, className2),
@@ -9774,10 +9771,10 @@ var menuListCSS = function menuListCSS2(_ref5) {
     WebkitOverflowScrolling: "touch"
   };
 };
-var MenuList = function MenuList2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps, innerRef = props2.innerRef, isMulti = props2.isMulti;
+var MenuList = function MenuList2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps, innerRef = props.innerRef, isMulti = props.isMulti;
   return jsx("div", _extends$2({
-    css: getStyles("menuList", props2),
+    css: getStyles("menuList", props),
     className: cx({
       "menu-list": true,
       "menu-list--is-multi": isMulti
@@ -9795,10 +9792,10 @@ var noticeCSS = function noticeCSS2(_ref6) {
 };
 var noOptionsMessageCSS = noticeCSS;
 var loadingMessageCSS = noticeCSS;
-var NoOptionsMessage = function NoOptionsMessage2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var NoOptionsMessage = function NoOptionsMessage2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("noOptionsMessage", props2),
+    css: getStyles("noOptionsMessage", props),
     className: cx({
       "menu-notice": true,
       "menu-notice--no-options": true
@@ -9808,10 +9805,10 @@ var NoOptionsMessage = function NoOptionsMessage2(props2) {
 NoOptionsMessage.defaultProps = {
   children: "No options"
 };
-var LoadingMessage = function LoadingMessage2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var LoadingMessage = function LoadingMessage2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("loadingMessage", props2),
+    css: getStyles("loadingMessage", props),
     className: cx({
       "menu-notice": true,
       "menu-notice--loading": true
@@ -9902,10 +9899,10 @@ var containerCSS = function containerCSS2(_ref3) {
     position: "relative"
   };
 };
-var SelectContainer = function SelectContainer2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps, isDisabled = props2.isDisabled, isRtl = props2.isRtl;
+var SelectContainer = function SelectContainer2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps, isDisabled = props.isDisabled, isRtl = props.isRtl;
   return jsx("div", _extends$2({
-    css: getStyles("container", props2),
+    css: getStyles("container", props),
     className: cx({
       "--is-disabled": isDisabled,
       "--is-rtl": isRtl
@@ -9925,10 +9922,10 @@ var valueContainerCSS = function valueContainerCSS2(_ref22) {
     overflow: "hidden"
   };
 };
-var ValueContainer = function ValueContainer2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, innerProps = props2.innerProps, isMulti = props2.isMulti, getStyles = props2.getStyles, hasValue = props2.hasValue;
+var ValueContainer = function ValueContainer2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, innerProps = props.innerProps, isMulti = props.isMulti, getStyles = props.getStyles, hasValue = props.hasValue;
   return jsx("div", _extends$2({
-    css: getStyles("valueContainer", props2),
+    css: getStyles("valueContainer", props),
     className: cx({
       "value-container": true,
       "value-container--is-multi": isMulti,
@@ -9944,10 +9941,10 @@ var indicatorsContainerCSS = function indicatorsContainerCSS2() {
     flexShrink: 0
   };
 };
-var IndicatorsContainer = function IndicatorsContainer2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, innerProps = props2.innerProps, getStyles = props2.getStyles;
+var IndicatorsContainer = function IndicatorsContainer2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, innerProps = props.innerProps, getStyles = props.getStyles;
   return jsx("div", _extends$2({
-    css: getStyles("indicatorsContainer", props2),
+    css: getStyles("indicatorsContainer", props),
     className: cx({
       indicators: true
     }, className2)
@@ -9960,7 +9957,7 @@ var _ref2$2 = {
   styles: "display:inline-block;fill:currentColor;line-height:1;stroke:currentColor;stroke-width:0"
 };
 var Svg = function Svg2(_ref3) {
-  var size = _ref3.size, props2 = _objectWithoutProperties(_ref3, _excluded$2);
+  var size = _ref3.size, props = _objectWithoutProperties(_ref3, _excluded$2);
   return jsx("svg", _extends$2({
     height: size,
     width: size,
@@ -9968,19 +9965,19 @@ var Svg = function Svg2(_ref3) {
     "aria-hidden": "true",
     focusable: "false",
     css: _ref2$2
-  }, props2));
+  }, props));
 };
-var CrossIcon = function CrossIcon2(props2) {
+var CrossIcon = function CrossIcon2(props) {
   return jsx(Svg, _extends$2({
     size: 20
-  }, props2), jsx("path", {
+  }, props), jsx("path", {
     d: "M14.348 14.849c-0.469 0.469-1.229 0.469-1.697 0l-2.651-3.030-2.651 3.029c-0.469 0.469-1.229 0.469-1.697 0-0.469-0.469-0.469-1.229 0-1.697l2.758-3.15-2.759-3.152c-0.469-0.469-0.469-1.228 0-1.697s1.228-0.469 1.697 0l2.652 3.031 2.651-3.031c0.469-0.469 1.228-0.469 1.697 0s0.469 1.229 0 1.697l-2.758 3.152 2.758 3.15c0.469 0.469 0.469 1.229 0 1.698z"
   }));
 };
-var DownChevron = function DownChevron2(props2) {
+var DownChevron = function DownChevron2(props) {
   return jsx(Svg, _extends$2({
     size: 20
-  }, props2), jsx("path", {
+  }, props), jsx("path", {
     d: "M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"
   }));
 };
@@ -9998,10 +9995,10 @@ var baseCSS = function baseCSS2(_ref3) {
   };
 };
 var dropdownIndicatorCSS = baseCSS;
-var DropdownIndicator = function DropdownIndicator2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var DropdownIndicator = function DropdownIndicator2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("dropdownIndicator", props2),
+    css: getStyles("dropdownIndicator", props),
     className: cx({
       indicator: true,
       "dropdown-indicator": true
@@ -10009,10 +10006,10 @@ var DropdownIndicator = function DropdownIndicator2(props2) {
   }, innerProps), children || jsx(DownChevron, null));
 };
 var clearIndicatorCSS = baseCSS;
-var ClearIndicator = function ClearIndicator2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var ClearIndicator = function ClearIndicator2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("clearIndicator", props2),
+    css: getStyles("clearIndicator", props),
     className: cx({
       indicator: true,
       "clear-indicator": true
@@ -10030,10 +10027,10 @@ var indicatorSeparatorCSS = function indicatorSeparatorCSS2(_ref4) {
     width: 1
   };
 };
-var IndicatorSeparator = function IndicatorSeparator2(props2) {
-  var className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var IndicatorSeparator = function IndicatorSeparator2(props) {
+  var className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("span", _extends$2({}, innerProps, {
-    css: getStyles("indicatorSeparator", props2),
+    css: getStyles("indicatorSeparator", props),
     className: cx({
       "indicator-separator": true
     }, className2)
@@ -10071,10 +10068,10 @@ var LoadingDot = function LoadingDot2(_ref6) {
     }, "", "")
   });
 };
-var LoadingIndicator = function LoadingIndicator2(props2) {
-  var className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps, isRtl = props2.isRtl;
+var LoadingIndicator = function LoadingIndicator2(props) {
+  var className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps, isRtl = props.isRtl;
   return jsx("div", _extends$2({
-    css: getStyles("loadingIndicator", props2),
+    css: getStyles("loadingIndicator", props),
     className: cx({
       indicator: true,
       "loading-indicator": true
@@ -10117,11 +10114,11 @@ var css$1 = function css2(_ref3) {
     }
   };
 };
-var Control = function Control2(props2) {
-  var children = props2.children, cx = props2.cx, getStyles = props2.getStyles, className2 = props2.className, isDisabled = props2.isDisabled, isFocused = props2.isFocused, innerRef = props2.innerRef, innerProps = props2.innerProps, menuIsOpen = props2.menuIsOpen;
+var Control = function Control2(props) {
+  var children = props.children, cx = props.cx, getStyles = props.getStyles, className2 = props.className, isDisabled = props.isDisabled, isFocused = props.isFocused, innerRef = props.innerRef, innerProps = props.innerProps, menuIsOpen = props.menuIsOpen;
   return jsx("div", _extends$2({
     ref: innerRef,
-    css: getStyles("control", props2),
+    css: getStyles("control", props),
     className: cx({
       control: true,
       "control--is-disabled": isDisabled,
@@ -10138,10 +10135,10 @@ var groupCSS = function groupCSS2(_ref3) {
     paddingTop: spacing2.baseUnit * 2
   };
 };
-var Group = function Group2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, Heading = props2.Heading, headingProps = props2.headingProps, innerProps = props2.innerProps, label = props2.label, theme = props2.theme, selectProps = props2.selectProps;
+var Group = function Group2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, Heading = props.Heading, headingProps = props.headingProps, innerProps = props.innerProps, label = props.label, theme = props.theme, selectProps = props.selectProps;
   return jsx("div", _extends$2({
-    css: getStyles("group", props2),
+    css: getStyles("group", props),
     className: cx({
       group: true
     }, className2)
@@ -10167,13 +10164,13 @@ var groupHeadingCSS = function groupHeadingCSS2(_ref22) {
     textTransform: "uppercase"
   };
 };
-var GroupHeading = function GroupHeading2(props2) {
-  var getStyles = props2.getStyles, cx = props2.cx, className2 = props2.className;
-  var _cleanCommonProps = cleanCommonProps(props2);
+var GroupHeading = function GroupHeading2(props) {
+  var getStyles = props.getStyles, cx = props.cx, className2 = props.className;
+  var _cleanCommonProps = cleanCommonProps(props);
   _cleanCommonProps.data;
   var innerProps = _objectWithoutProperties(_cleanCommonProps, _excluded$1);
   return jsx("div", _extends$2({
-    css: getStyles("groupHeading", props2),
+    css: getStyles("groupHeading", props),
     className: cx({
       "group-heading": true
     }, className2)
@@ -10220,14 +10217,14 @@ var inputStyle = function inputStyle2(isHidden) {
     width: "100%"
   }, spacingStyle);
 };
-var Input = function Input3(props2) {
-  var className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, value = props2.value;
-  var _cleanCommonProps = cleanCommonProps(props2), innerRef = _cleanCommonProps.innerRef, isDisabled = _cleanCommonProps.isDisabled, isHidden = _cleanCommonProps.isHidden, inputClassName = _cleanCommonProps.inputClassName, innerProps = _objectWithoutProperties(_cleanCommonProps, _excluded$4);
+var Input = function Input3(props) {
+  var className2 = props.className, cx = props.cx, getStyles = props.getStyles, value = props.value;
+  var _cleanCommonProps = cleanCommonProps(props), innerRef = _cleanCommonProps.innerRef, isDisabled = _cleanCommonProps.isDisabled, isHidden = _cleanCommonProps.isHidden, inputClassName = _cleanCommonProps.inputClassName, innerProps = _objectWithoutProperties(_cleanCommonProps, _excluded$4);
   return jsx("div", {
     className: cx({
       "input-container": true
     }, className2),
-    css: getStyles("input", props2),
+    css: getStyles("input", props),
     "data-value": value || ""
   }, jsx("input", _extends$2({
     className: cx({
@@ -10291,15 +10288,15 @@ function MultiValueRemove(_ref5) {
     size: 14
   }));
 }
-var MultiValue = function MultiValue2(props2) {
-  var children = props2.children, className2 = props2.className, components2 = props2.components, cx = props2.cx, data2 = props2.data, getStyles = props2.getStyles, innerProps = props2.innerProps, isDisabled = props2.isDisabled, removeProps3 = props2.removeProps, selectProps = props2.selectProps;
+var MultiValue = function MultiValue2(props) {
+  var children = props.children, className2 = props.className, components2 = props.components, cx = props.cx, data2 = props.data, getStyles = props.getStyles, innerProps = props.innerProps, isDisabled = props.isDisabled, removeProps3 = props.removeProps, selectProps = props.selectProps;
   var Container2 = components2.Container, Label = components2.Label, Remove = components2.Remove;
   return jsx(ClassNames, null, function(_ref6) {
     var css4 = _ref6.css, emotionCx = _ref6.cx;
     return jsx(Container2, {
       data: data2,
       innerProps: _objectSpread2$1({
-        className: emotionCx(css4(getStyles("multiValue", props2)), cx({
+        className: emotionCx(css4(getStyles("multiValue", props)), cx({
           "multi-value": true,
           "multi-value--is-disabled": isDisabled
         }, className2))
@@ -10308,7 +10305,7 @@ var MultiValue = function MultiValue2(props2) {
     }, jsx(Label, {
       data: data2,
       innerProps: {
-        className: emotionCx(css4(getStyles("multiValueLabel", props2)), cx({
+        className: emotionCx(css4(getStyles("multiValueLabel", props)), cx({
           "multi-value__label": true
         }, className2))
       },
@@ -10316,7 +10313,7 @@ var MultiValue = function MultiValue2(props2) {
     }, children), jsx(Remove, {
       data: data2,
       innerProps: _objectSpread2$1({
-        className: emotionCx(css4(getStyles("multiValueRemove", props2)), cx({
+        className: emotionCx(css4(getStyles("multiValueRemove", props)), cx({
           "multi-value__remove": true
         }, className2)),
         "aria-label": "Remove ".concat(children || "option")
@@ -10343,10 +10340,10 @@ var optionCSS = function optionCSS2(_ref3) {
     }
   };
 };
-var Option = function Option2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, isDisabled = props2.isDisabled, isFocused = props2.isFocused, isSelected = props2.isSelected, innerRef = props2.innerRef, innerProps = props2.innerProps;
+var Option = function Option2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, isDisabled = props.isDisabled, isFocused = props.isFocused, isSelected = props.isSelected, innerRef = props.innerRef, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("option", props2),
+    css: getStyles("option", props),
     className: cx({
       option: true,
       "option--is-disabled": isDisabled,
@@ -10367,10 +10364,10 @@ var placeholderCSS = function placeholderCSS2(_ref3) {
     marginRight: spacing2.baseUnit / 2
   };
 };
-var Placeholder = function Placeholder2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, innerProps = props2.innerProps;
+var Placeholder = function Placeholder2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("placeholder", props2),
+    css: getStyles("placeholder", props),
     className: cx({
       placeholder: true
     }, className2)
@@ -10390,10 +10387,10 @@ var css = function css3(_ref3) {
     whiteSpace: "nowrap"
   };
 };
-var SingleValue = function SingleValue2(props2) {
-  var children = props2.children, className2 = props2.className, cx = props2.cx, getStyles = props2.getStyles, isDisabled = props2.isDisabled, innerProps = props2.innerProps;
+var SingleValue = function SingleValue2(props) {
+  var children = props.children, className2 = props.className, cx = props.cx, getStyles = props.getStyles, isDisabled = props.isDisabled, innerProps = props.innerProps;
   return jsx("div", _extends$2({
-    css: getStyles("singleValue", props2),
+    css: getStyles("singleValue", props),
     className: cx({
       "single-value": true,
       "single-value--is-disabled": isDisabled
@@ -10427,8 +10424,8 @@ var components = {
   SingleValue,
   ValueContainer
 };
-var defaultComponents = function defaultComponents2(props2) {
-  return _objectSpread2$1(_objectSpread2$1({}, components), props2.components);
+var defaultComponents = function defaultComponents2(props) {
+  return _objectSpread2$1(_objectSpread2$1({}, components), props.components);
 };
 var safeIsNaN = Number.isNaN || function ponyfill(value) {
   return typeof value === "number" && value !== value;
@@ -10483,27 +10480,27 @@ var _ref = {
   name: "7pg0cj-a11yText",
   styles: "label:a11yText;z-index:9999;border:0;clip:rect(1px, 1px, 1px, 1px);height:1px;width:1px;position:absolute;overflow:hidden;padding:0;white-space:nowrap"
 };
-var A11yText = function A11yText2(props2) {
+var A11yText = function A11yText2(props) {
   return jsx("span", _extends$2({
     css: _ref
-  }, props2));
+  }, props));
 };
 var defaultAriaLiveMessages = {
-  guidance: function guidance(props2) {
-    var isSearchable = props2.isSearchable, isMulti = props2.isMulti, isDisabled = props2.isDisabled, tabSelectsValue = props2.tabSelectsValue, context = props2.context;
+  guidance: function guidance(props) {
+    var isSearchable = props.isSearchable, isMulti = props.isMulti, isDisabled = props.isDisabled, tabSelectsValue = props.tabSelectsValue, context = props.context;
     switch (context) {
       case "menu":
         return "Use Up and Down to choose options".concat(isDisabled ? "" : ", press Enter to select the currently focused option", ", press Escape to exit the menu").concat(tabSelectsValue ? ", press Tab to select the option and exit the menu" : "", ".");
       case "input":
-        return "".concat(props2["aria-label"] || "Select", " is focused ").concat(isSearchable ? ",type to refine list" : "", ", press Down to open the menu, ").concat(isMulti ? " press left to focus selected values" : "");
+        return "".concat(props["aria-label"] || "Select", " is focused ").concat(isSearchable ? ",type to refine list" : "", ", press Down to open the menu, ").concat(isMulti ? " press left to focus selected values" : "");
       case "value":
         return "Use left and right to toggle between focused values, press Backspace to remove the currently focused value";
       default:
         return "";
     }
   },
-  onChange: function onChange(props2) {
-    var action = props2.action, _props$label = props2.label, label = _props$label === void 0 ? "" : _props$label, labels = props2.labels, isDisabled = props2.isDisabled;
+  onChange: function onChange(props) {
+    var action = props.action, _props$label = props.label, label = _props$label === void 0 ? "" : _props$label, labels = props.labels, isDisabled = props.isDisabled;
     switch (action) {
       case "deselect-option":
       case "pop-value":
@@ -10519,8 +10516,8 @@ var defaultAriaLiveMessages = {
         return "";
     }
   },
-  onFocus: function onFocus(props2) {
-    var context = props2.context, focused = props2.focused, options2 = props2.options, _props$label2 = props2.label, label = _props$label2 === void 0 ? "" : _props$label2, selectValue = props2.selectValue, isDisabled = props2.isDisabled, isSelected = props2.isSelected;
+  onFocus: function onFocus(props) {
+    var context = props.context, focused = props.focused, options2 = props.options, _props$label2 = props.label, label = _props$label2 === void 0 ? "" : _props$label2, selectValue = props.selectValue, isDisabled = props.isDisabled, isSelected = props.isSelected;
     var getArrayIndex = function getArrayIndex2(arr, item) {
       return arr && arr.length ? "".concat(arr.indexOf(item) + 1, " of ").concat(arr.length) : "";
     };
@@ -10534,13 +10531,13 @@ var defaultAriaLiveMessages = {
     }
     return "";
   },
-  onFilter: function onFilter(props2) {
-    var inputValue = props2.inputValue, resultsMessage = props2.resultsMessage;
+  onFilter: function onFilter(props) {
+    var inputValue = props.inputValue, resultsMessage = props.resultsMessage;
     return "".concat(resultsMessage).concat(inputValue ? " for search term " + inputValue : "", ".");
   }
 };
-var LiveRegion = function LiveRegion2(props2) {
-  var ariaSelection = props2.ariaSelection, focusedOption = props2.focusedOption, focusedValue = props2.focusedValue, focusableOptions = props2.focusableOptions, isFocused = props2.isFocused, selectValue = props2.selectValue, selectProps = props2.selectProps, id2 = props2.id;
+var LiveRegion = function LiveRegion2(props) {
+  var ariaSelection = props.ariaSelection, focusedOption = props.focusedOption, focusedValue = props.focusedValue, focusableOptions = props.focusableOptions, isFocused = props.isFocused, selectValue = props.selectValue, selectProps = props.selectProps, id2 = props.id;
   var ariaLiveMessages = selectProps.ariaLiveMessages, getOptionLabel4 = selectProps.getOptionLabel, inputValue = selectProps.inputValue, isMulti = selectProps.isMulti, isOptionDisabled3 = selectProps.isOptionDisabled, isSearchable = selectProps.isSearchable, menuIsOpen = selectProps.menuIsOpen, options2 = selectProps.options, screenReaderStatus2 = selectProps.screenReaderStatus, tabSelectsValue = selectProps.tabSelectsValue;
   var ariaLabel = selectProps["aria-label"];
   var ariaLive = selectProps["aria-live"];
@@ -10929,8 +10926,8 @@ var createFilter = function createFilter2(config) {
 };
 var _excluded = ["innerRef"];
 function DummyInput(_ref3) {
-  var innerRef = _ref3.innerRef, props2 = _objectWithoutProperties(_ref3, _excluded);
-  var filteredProps = removeProps(props2, "onExited", "in", "enter", "exit", "appear");
+  var innerRef = _ref3.innerRef, props = _objectWithoutProperties(_ref3, _excluded);
+  var filteredProps = removeProps(props, "onExited", "in", "enter", "exit", "appear");
   return jsx("input", _extends$2({
     ref: innerRef
   }, filteredProps, {
@@ -11304,11 +11301,11 @@ var defaultProps = {
   tabIndex: 0,
   tabSelectsValue: true
 };
-function toCategorizedOption(props2, option, selectValue, index2) {
-  var isDisabled = _isOptionDisabled(props2, option, selectValue);
-  var isSelected = _isOptionSelected(props2, option, selectValue);
-  var label = getOptionLabel(props2, option);
-  var value = getOptionValue(props2, option);
+function toCategorizedOption(props, option, selectValue, index2) {
+  var isDisabled = _isOptionDisabled(props, option, selectValue);
+  var isSelected = _isOptionSelected(props, option, selectValue);
+  var label = getOptionLabel(props, option);
+  var value = getOptionValue(props, option);
   return {
     type: "option",
     data: option,
@@ -11319,13 +11316,13 @@ function toCategorizedOption(props2, option, selectValue, index2) {
     index: index2
   };
 }
-function buildCategorizedOptions(props2, selectValue) {
-  return props2.options.map(function(groupOrOption, groupOrOptionIndex) {
+function buildCategorizedOptions(props, selectValue) {
+  return props.options.map(function(groupOrOption, groupOrOptionIndex) {
     if ("options" in groupOrOption) {
       var categorizedOptions = groupOrOption.options.map(function(option, optionIndex) {
-        return toCategorizedOption(props2, option, selectValue, optionIndex);
+        return toCategorizedOption(props, option, selectValue, optionIndex);
       }).filter(function(categorizedOption2) {
-        return isFocusable(props2, categorizedOption2);
+        return isFocusable(props, categorizedOption2);
       });
       return categorizedOptions.length > 0 ? {
         type: "group",
@@ -11334,8 +11331,8 @@ function buildCategorizedOptions(props2, selectValue) {
         index: groupOrOptionIndex
       } : void 0;
     }
-    var categorizedOption = toCategorizedOption(props2, groupOrOption, selectValue, groupOrOptionIndex);
-    return isFocusable(props2, categorizedOption) ? categorizedOption : void 0;
+    var categorizedOption = toCategorizedOption(props, groupOrOption, selectValue, groupOrOptionIndex);
+    return isFocusable(props, categorizedOption) ? categorizedOption : void 0;
   }).filter(notNullish);
 }
 function buildFocusableOptionsFromCategorizedOptions(categorizedOptions) {
@@ -11350,13 +11347,13 @@ function buildFocusableOptionsFromCategorizedOptions(categorizedOptions) {
     return optionsAccumulator;
   }, []);
 }
-function buildFocusableOptions(props2, selectValue) {
-  return buildFocusableOptionsFromCategorizedOptions(buildCategorizedOptions(props2, selectValue));
+function buildFocusableOptions(props, selectValue) {
+  return buildFocusableOptionsFromCategorizedOptions(buildCategorizedOptions(props, selectValue));
 }
-function isFocusable(props2, categorizedOption) {
-  var _props$inputValue = props2.inputValue, inputValue = _props$inputValue === void 0 ? "" : _props$inputValue;
+function isFocusable(props, categorizedOption) {
+  var _props$inputValue = props.inputValue, inputValue = _props$inputValue === void 0 ? "" : _props$inputValue;
   var data2 = categorizedOption.data, isSelected = categorizedOption.isSelected, label = categorizedOption.label, value = categorizedOption.value;
-  return (!shouldHideSelectedOptions(props2) || !isSelected) && _filterOption(props2, {
+  return (!shouldHideSelectedOptions(props) || !isSelected) && _filterOption(props, {
     label,
     value,
     data: data2
@@ -11379,31 +11376,31 @@ function getNextFocusedOption(state, options2) {
   var lastFocusedOption = state.focusedOption;
   return lastFocusedOption && options2.indexOf(lastFocusedOption) > -1 ? lastFocusedOption : options2[0];
 }
-var getOptionLabel = function getOptionLabel3(props2, data2) {
-  return props2.getOptionLabel(data2);
+var getOptionLabel = function getOptionLabel3(props, data2) {
+  return props.getOptionLabel(data2);
 };
-var getOptionValue = function getOptionValue3(props2, data2) {
-  return props2.getOptionValue(data2);
+var getOptionValue = function getOptionValue3(props, data2) {
+  return props.getOptionValue(data2);
 };
-function _isOptionDisabled(props2, option, selectValue) {
-  return typeof props2.isOptionDisabled === "function" ? props2.isOptionDisabled(option, selectValue) : false;
+function _isOptionDisabled(props, option, selectValue) {
+  return typeof props.isOptionDisabled === "function" ? props.isOptionDisabled(option, selectValue) : false;
 }
-function _isOptionSelected(props2, option, selectValue) {
+function _isOptionSelected(props, option, selectValue) {
   if (selectValue.indexOf(option) > -1)
     return true;
-  if (typeof props2.isOptionSelected === "function") {
-    return props2.isOptionSelected(option, selectValue);
+  if (typeof props.isOptionSelected === "function") {
+    return props.isOptionSelected(option, selectValue);
   }
-  var candidate = getOptionValue(props2, option);
+  var candidate = getOptionValue(props, option);
   return selectValue.some(function(i2) {
-    return getOptionValue(props2, i2) === candidate;
+    return getOptionValue(props, i2) === candidate;
   });
 }
-function _filterOption(props2, option, inputValue) {
-  return props2.filterOption ? props2.filterOption(option, inputValue) : true;
+function _filterOption(props, option, inputValue) {
+  return props.filterOption ? props.filterOption(option, inputValue) : true;
 }
-var shouldHideSelectedOptions = function shouldHideSelectedOptions2(props2) {
-  var hideSelectedOptions = props2.hideSelectedOptions, isMulti = props2.isMulti;
+var shouldHideSelectedOptions = function shouldHideSelectedOptions2(props) {
+  var hideSelectedOptions = props.hideSelectedOptions, isMulti = props.isMulti;
   if (hideSelectedOptions === void 0)
     return isMulti;
   return hideSelectedOptions;
@@ -11556,11 +11553,11 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
     _this.getOptionValue = function(data2) {
       return getOptionValue(_this.props, data2);
     };
-    _this.getStyles = function(key, props2) {
-      var base2 = defaultStyles[key](props2);
+    _this.getStyles = function(key, props) {
+      var base2 = defaultStyles[key](props);
       base2.boxSizing = "border-box";
       var custom = _this.props.styles[key];
-      return custom ? custom(base2, props2) : base2;
+      return custom ? custom(base2, props) : base2;
     };
     _this.getElementId = function(element) {
       return "".concat(_this.instancePrefix, "-").concat(element);
@@ -12098,8 +12095,8 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
   }, {
     key: "getCommonProps",
     value: function getCommonProps() {
-      var clearValue = this.clearValue, cx = this.cx, getStyles = this.getStyles, getValue = this.getValue, selectOption = this.selectOption, setValue = this.setValue, props2 = this.props;
-      var isMulti = props2.isMulti, isRtl = props2.isRtl, options2 = props2.options;
+      var clearValue = this.clearValue, cx = this.cx, getStyles = this.getStyles, getValue = this.getValue, selectOption = this.selectOption, setValue = this.setValue, props = this.props;
+      var isMulti = props.isMulti, isRtl = props.isRtl, options2 = props.options;
       var hasValue = this.hasValue();
       return {
         clearValue,
@@ -12111,7 +12108,7 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
         isRtl,
         options: options2,
         selectOption,
-        selectProps: props2,
+        selectProps: props,
         setValue,
         theme: this.getTheme()
       };
@@ -12402,8 +12399,8 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
       var _this$props12 = this.props, captureMenuScroll = _this$props12.captureMenuScroll, inputValue = _this$props12.inputValue, isLoading = _this$props12.isLoading, loadingMessage2 = _this$props12.loadingMessage, minMenuHeight = _this$props12.minMenuHeight, maxMenuHeight = _this$props12.maxMenuHeight, menuIsOpen = _this$props12.menuIsOpen, menuPlacement = _this$props12.menuPlacement, menuPosition = _this$props12.menuPosition, menuPortalTarget = _this$props12.menuPortalTarget, menuShouldBlockScroll = _this$props12.menuShouldBlockScroll, menuShouldScrollIntoView = _this$props12.menuShouldScrollIntoView, noOptionsMessage2 = _this$props12.noOptionsMessage, onMenuScrollToTop = _this$props12.onMenuScrollToTop, onMenuScrollToBottom = _this$props12.onMenuScrollToBottom;
       if (!menuIsOpen)
         return null;
-      var render = function render2(props2, id2) {
-        var type = props2.type, data2 = props2.data, isDisabled = props2.isDisabled, isSelected = props2.isSelected, label = props2.label, value = props2.value;
+      var render = function render2(props, id2) {
+        var type = props.type, data2 = props.data, isDisabled = props.isDisabled, isSelected = props.isSelected, label = props.label, value = props.value;
         var isFocused = focusedOption === data2;
         var onHover = isDisabled ? void 0 : function() {
           return _this4.onOptionHover(data2);
@@ -12430,7 +12427,7 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
           value,
           isFocused,
           innerRef: isFocused ? _this4.getFocusedOptionRef : void 0
-        }), _this4.formatOptionLabel(props2.data, "menu"));
+        }), _this4.formatOptionLabel(props.data, "menu"));
       };
       var menuUI;
       if (this.hasOptions()) {
@@ -12609,13 +12606,13 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
     }
   }], [{
     key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(props2, state) {
+    value: function getDerivedStateFromProps(props, state) {
       var prevProps = state.prevProps, clearFocusValueOnUpdate = state.clearFocusValueOnUpdate, inputIsHiddenAfterUpdate = state.inputIsHiddenAfterUpdate, ariaSelection = state.ariaSelection, isFocused = state.isFocused, prevWasFocused = state.prevWasFocused;
-      var options2 = props2.options, value = props2.value, menuIsOpen = props2.menuIsOpen, inputValue = props2.inputValue, isMulti = props2.isMulti;
+      var options2 = props.options, value = props.value, menuIsOpen = props.menuIsOpen, inputValue = props.inputValue, isMulti = props.isMulti;
       var selectValue = cleanValue(value);
       var newMenuOptionsState = {};
       if (prevProps && (value !== prevProps.value || options2 !== prevProps.options || menuIsOpen !== prevProps.menuIsOpen || inputValue !== prevProps.inputValue)) {
-        var focusableOptions = menuIsOpen ? buildFocusableOptions(props2, selectValue) : [];
+        var focusableOptions = menuIsOpen ? buildFocusableOptions(props, selectValue) : [];
         var focusedValue = clearFocusValueOnUpdate ? getNextFocusedValue(state, selectValue) : null;
         var focusedOption = getNextFocusedOption(state, focusableOptions);
         newMenuOptionsState = {
@@ -12625,7 +12622,7 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
           clearFocusValueOnUpdate: false
         };
       }
-      var newInputIsHiddenState = inputIsHiddenAfterUpdate != null && props2 !== prevProps ? {
+      var newInputIsHiddenState = inputIsHiddenAfterUpdate != null && props !== prevProps ? {
         inputIsHidden: inputIsHiddenAfterUpdate,
         inputIsHiddenAfterUpdate: void 0
       } : {};
@@ -12643,7 +12640,7 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
         newAriaSelection = null;
       }
       return _objectSpread2$1(_objectSpread2$1(_objectSpread2$1({}, newMenuOptionsState), newInputIsHiddenState), {}, {
-        prevProps: props2,
+        prevProps: props,
         ariaSelection: newAriaSelection,
         prevWasFocused: hasKeptFocus
       });
@@ -12652,8 +12649,8 @@ var Select$1 = /* @__PURE__ */ function(_Component) {
   return Select3;
 }(react.exports.Component);
 Select$1.defaultProps = defaultProps;
-var StateManagedSelect = /* @__PURE__ */ react.exports.forwardRef(function(props2, ref) {
-  var baseSelectProps = useStateManager(props2);
+var StateManagedSelect = /* @__PURE__ */ react.exports.forwardRef(function(props, ref) {
+  var baseSelectProps = useStateManager(props);
   return /* @__PURE__ */ react.exports.createElement(Select$1, _extends$2({
     ref
   }, baseSelectProps));
@@ -12720,7 +12717,7 @@ function emptyFunctionWithReset() {
 }
 emptyFunctionWithReset.resetWarningCache = emptyFunction;
 var factoryWithThrowingShims = function() {
-  function shim(props2, propName, componentName, location2, propFullName, secret) {
+  function shim(props, propName, componentName, location2, propFullName, secret) {
     if (secret === ReactPropTypesSecret) {
       return;
     }
@@ -13335,9 +13332,9 @@ _portalOpenInstances2.default.subscribe(bodyTrap);
     return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
   var _createClass2 = function() {
-    function defineProperties2(target, props2) {
-      for (var i2 = 0; i2 < props2.length; i2++) {
-        var descriptor = props2[i2];
+    function defineProperties2(target, props) {
+      for (var i2 = 0; i2 < props.length; i2++) {
+        var descriptor = props[i2];
         descriptor.enumerable = descriptor.enumerable || false;
         descriptor.configurable = true;
         if ("value" in descriptor)
@@ -13418,9 +13415,9 @@ _portalOpenInstances2.default.subscribe(bodyTrap);
   var ariaHiddenInstances = 0;
   var ModalPortal2 = function(_Component) {
     _inherits2(ModalPortal3, _Component);
-    function ModalPortal3(props2) {
+    function ModalPortal3(props) {
       _classCallCheck2(this, ModalPortal3);
-      var _this = _possibleConstructorReturn2(this, (ModalPortal3.__proto__ || Object.getPrototypeOf(ModalPortal3)).call(this, props2));
+      var _this = _possibleConstructorReturn2(this, (ModalPortal3.__proto__ || Object.getPrototypeOf(ModalPortal3)).call(this, props));
       _this.setOverlayRef = function(overlay) {
         _this.overlay = overlay;
         _this.props.overlayRef && _this.props.overlayRef(overlay);
@@ -13808,9 +13805,9 @@ var _extends$1 = Object.assign || function(target) {
   return target;
 };
 var _createClass$1 = function() {
-  function defineProperties2(target, props2) {
-    for (var i2 = 0; i2 < props2.length; i2++) {
-      var descriptor = props2[i2];
+  function defineProperties2(target, props) {
+    for (var i2 = 0; i2 < props.length; i2++) {
+      var descriptor = props[i2];
       descriptor.enumerable = descriptor.enumerable || false;
       descriptor.configurable = true;
       if ("value" in descriptor)
@@ -13907,9 +13904,9 @@ var Modal$1 = function(_Component) {
       }
     }, _this.portalRef = function(ref) {
       _this.portal = ref;
-    }, _this.renderPortal = function(props2) {
+    }, _this.renderPortal = function(props) {
       var createPortal = getCreatePortal();
-      var portal = createPortal(_this, _react2.default.createElement(_ModalPortal2.default, _extends$1({ defaultStyles: Modal2.defaultStyles }, props2)), _this.node);
+      var portal = createPortal(_this, _react2.default.createElement(_ModalPortal2.default, _extends$1({ defaultStyles: Modal2.defaultStyles }, props)), _this.node);
       _this.portalRef(portal);
     }, _temp2), _possibleConstructorReturn$1(_this, _ret);
   }
@@ -14046,17 +14043,17 @@ Modal$1.defaultProps = {
   parentSelector: function parentSelector() {
     return document.body;
   },
-  overlayElement: function overlayElement(props2, contentEl) {
+  overlayElement: function overlayElement(props, contentEl) {
     return _react2.default.createElement(
       "div",
-      props2,
+      props,
       contentEl
     );
   },
-  contentElement: function contentElement(props2, children) {
+  contentElement: function contentElement(props, children) {
     return _react2.default.createElement(
       "div",
-      props2,
+      props,
       children
     );
   }
@@ -14100,7 +14097,7 @@ Modal$2.default = Modal$1;
   module.exports = exports["default"];
 })(lib$2, lib$2.exports);
 var Modal = /* @__PURE__ */ getDefaultExportFromCjs(lib$2.exports);
-function SessionsPanel(props2) {
+function SessionsPanel(props) {
   let [showEmailPage, setShowEmailPage] = react.exports.useState(false);
   let [selectedOptions, setSelectedOptions] = react.exports.useState([]);
   let localStorageEmails = JSON.parse(localStorage.getItem("storedEmails"));
@@ -14108,8 +14105,8 @@ function SessionsPanel(props2) {
   const [modalIsOpen, setModalIsOpen] = react.exports.useState(false);
   const [colorspaceOptions, setColorspaceOptions] = react.exports.useState([]);
   const [proto, setProto] = react.exports.useState("0");
-  let sessionDashXML = props2.sessionDashXML;
-  let buttons = props2.buttons || [];
+  let sessionDashXML = props.sessionDashXML;
+  let buttons = props.buttons || [];
   if (buttons.length > 0) {
     buttons = buttons.map((button) => button.toLowerCase());
   }
@@ -14129,8 +14126,8 @@ function SessionsPanel(props2) {
       }
     }
   }
-  let customHost = props2.customHost;
-  let customPort = props2.customPort;
+  let customHost = props.customHost;
+  let customPort = props.customPort;
   let opts = [];
   if (localStorageEmails) {
     opts = localStorageEmails;
@@ -14153,7 +14150,7 @@ function SessionsPanel(props2) {
   };
   async function handleCreateNewSessionBtnWrapper() {
     let sessionIDElems = document.getElementsByClassName("session-id-readout");
-    let res = await props2.handleCreateNewSessionBtn();
+    let res = await props.handleCreateNewSessionBtn();
     if (res !== void 0 && res !== null && res !== "Invalid Login") {
       for (let elem of sessionIDElems) {
         elem.innerHTML = `<span style="color: green">Creating...</span>`;
@@ -17184,15 +17181,15 @@ function TableDataUsage({ url }) {
     key: index2
   }, /* @__PURE__ */ React$1.createElement("td", null, dataitem.index), /* @__PURE__ */ React$1.createElement("td", null, dataitem.ip), /* @__PURE__ */ React$1.createElement("td", null, dataitem.dataSent), /* @__PURE__ */ React$1.createElement("td", null, dataitem.timeRunning), /* @__PURE__ */ React$1.createElement("td", null, dataitem.firstActive), /* @__PURE__ */ React$1.createElement("td", null, dataitem.lastActive)))));
 }
-function ServerControl(props2) {
-  let show0 = (props2.tableset & 1) === 1;
-  let show1 = (props2.tableset & 2) === 2;
-  let show2 = (props2.tableset & 4) === 4;
-  let show3 = (props2.tableset & 8) === 8;
-  let show4 = (props2.tableset & 16) === 16;
-  let login = props2.login;
-  let password = props2.password;
-  const PREFIX = "https://" + props2.server + "/light/";
+function ServerControl(props) {
+  let show0 = (props.tableset & 1) === 1;
+  let show1 = (props.tableset & 2) === 2;
+  let show2 = (props.tableset & 4) === 4;
+  let show3 = (props.tableset & 8) === 8;
+  let show4 = (props.tableset & 16) === 16;
+  let login = props.login;
+  let password = props.password;
+  const PREFIX = "https://" + props.server + "/light/";
   const POSTFIX = "?login=" + login + "&hashedPass=" + password;
   const DATA_USAGE_URL = PREFIX + "xmlDataUsage.php" + POSTFIX;
   const DECODERS_URL = PREFIX + "xmlGetDecoders.php" + POSTFIX;
@@ -17214,9 +17211,9 @@ function ServerControl(props2) {
   })));
 }
 const endpoint$1 = location.origin;
-function Container(props2) {
-  const container = props2.container;
-  const apiObj = props2.apiObj;
+function Container(props) {
+  const container = props.container;
+  const apiObj = props.apiObj;
   const title = container.title;
   const fields = container.fields;
   const containerType = container.type;
@@ -17245,7 +17242,7 @@ function Container(props2) {
       alert("Preset Changed Successfully");
       localStorage.setItem("presetPID", pid);
       console.log("Preset changed" + JSON.stringify(data2));
-      props2.triggerBackgroundFetch();
+      props.triggerBackgroundFetch();
     });
   }
   async function handleFormSubmit(event) {
@@ -17277,7 +17274,7 @@ function Container(props2) {
         );
         alert("Changes have been applied");
         localStorage.setItem("presetPID", "custom");
-        props2.triggerBackgroundFetch();
+        props.triggerBackgroundFetch();
       }
     );
   }
@@ -17353,7 +17350,7 @@ function Container(props2) {
       action_list: ["start"]
     }).then((data2) => {
       console.log("Streaming started" + JSON.stringify(data2));
-      props2.triggerBackgroundFetch();
+      props.triggerBackgroundFetch();
     });
   }
   async function stopStreaming(btnPort, btnHost) {
@@ -17370,7 +17367,7 @@ function Container(props2) {
       }
     ).then((data2) => {
       console.log("Streaming stopped" + JSON.stringify(data2));
-      props2.triggerBackgroundFetch();
+      props.triggerBackgroundFetch();
     });
   }
   function handleFieldTypes(field, index2, fieldStyle2) {
@@ -17465,8 +17462,8 @@ function Container(props2) {
             alert(
               "Please provide the audio REST endpoint in addition to the video REST endpoint.  This is required to render VU meters."
             );
-            props2.clearTimer();
-            props2.openSettings();
+            props.clearTimer();
+            props.openSettings();
             return;
           }
           returnArr = /* @__PURE__ */ React$1.createElement("div", {
@@ -17477,13 +17474,13 @@ function Container(props2) {
             location: endpoint$1,
             previewImageRoute: replaceJSONParams(
               field.previewImageRoute,
-              props2.templateVariables
+              props.templateVariables
             )
           }), /* @__PURE__ */ React$1.createElement(AudioMeter, {
             key: `audio-section-${index2}`,
             audioLevelRoute: replaceJSONParams(
               field.audioLevelEndpoint,
-              props2.templateVariables
+              props.templateVariables
             ),
             numChannels
           }));
@@ -17525,7 +17522,7 @@ function Container(props2) {
           key: `button-${index2}`,
           postEndpoint: replaceJSONParams(
             container.postEndpoint,
-            props2.templateVariables
+            props.templateVariables
           ),
           size: field.size,
           backgroundColor: field.backgroundColor,
@@ -17540,11 +17537,11 @@ function Container(props2) {
           label: result,
           port: customPortExists ? replaceJSONParams(
             field.port,
-            props2.templateVariables
+            props.templateVariables
           ) : void 0,
           host: customHostExists ? replaceJSONParams(
             field.host,
-            props2.templateVariables
+            props.templateVariables
           ) : void 0,
           action: field.action,
           redirectURL: field.redirectURL,
@@ -17598,10 +17595,10 @@ function Container(props2) {
           });
         }
       }
-    } else if (field.type === "presetSelect" && props2.presetObj) {
+    } else if (field.type === "presetSelect" && props.presetObj) {
       let presetEndpoint = replaceJSONParams(
         field.btnPresetSrc,
-        props2.templateVariables
+        props.templateVariables
       );
       returnArr = /* @__PURE__ */ React$1.createElement("div", {
         key: `preset-div-${index2}`,
@@ -17610,7 +17607,7 @@ function Container(props2) {
         key: `select-${index2}`,
         name: "none",
         value: "none",
-        presetObj: props2.presetObj,
+        presetObj: props.presetObj,
         label: field.label,
         endLabel: field.endLabel
       }), /* @__PURE__ */ React$1.createElement(Button, {
@@ -17672,11 +17669,11 @@ function Container(props2) {
       let customPort = container.port;
       let buttons = container.buttons;
       mappedFields = /* @__PURE__ */ React$1.createElement(SessionsPanel, {
-        sessionDashXML: props2.sessionDashXML,
+        sessionDashXML: props.sessionDashXML,
         buttons,
         customHost,
         customPort,
-        handleCreateNewSessionBtn: props2.handleCreateNewSessionBtn
+        handleCreateNewSessionBtn: props.handleCreateNewSessionBtn
       });
     } else if (containerType === "serverControl") {
       mappedFields = /* @__PURE__ */ React$1.createElement(ServerControl, {
@@ -17702,10 +17699,10 @@ function Container(props2) {
     className: "fields-container"
   }, mappedFields));
 }
-function App(props2) {
-  const currentTemplate = props2.currentTemplate;
+function App(props) {
+  const currentTemplate = props.currentTemplate;
   const navBtns = currentTemplate.template.navbar.routes;
-  const currentPageName = props2.currentPageName;
+  const currentPageName = props.currentPageName;
   const [currentContainers, setCurrentContainers] = react.exports.useState([]);
   const containerStyles = react.exports.useRef([navBtns[0].containersStyle]);
   const [backgroundFetchCount, setBackgroundFetchCount] = react.exports.useState(0);
@@ -17786,7 +17783,7 @@ function App(props2) {
               alert(
                 "There's a problem with an endpoint in the chosen JSON file.  Please choose a valid JSON file."
               );
-              props2.openSettings();
+              props.openSettings();
               clearTimer();
               return;
             }
@@ -17802,7 +17799,7 @@ function App(props2) {
           if (presetObj) {
             return /* @__PURE__ */ React$1.createElement(Container, {
               presetObj,
-              openSettings: props2.openSettings,
+              openSettings: props.openSettings,
               key: "container-" + index2,
               clearTimer,
               startTimer,
@@ -17816,7 +17813,7 @@ function App(props2) {
           } else {
             return /* @__PURE__ */ React$1.createElement(Container, {
               key: "container-" + index2,
-              openSettings: props2.openSettings,
+              openSettings: props.openSettings,
               clearTimer,
               startTimer,
               triggerBackgroundFetch,
@@ -17870,7 +17867,7 @@ function App(props2) {
         }
       } else {
         window.CallSettings = function CallSettings() {
-          props2.openSettings();
+          props.openSettings();
         };
         localStorage.removeItem("sessionServerIP");
         document.querySelector(".no-session-msg").innerHTML = 'Log into Streambox Cloud in  <button className="sessions-panel-top-btns" onClick="event.preventDefault(); CallSettings();"}> Settings</button>';
@@ -17987,26 +17984,26 @@ function App(props2) {
     style: style2
   }, currentContainers)));
 }
-function NavBtn(props2) {
+function NavBtn(props) {
   let classList2 = "nav-btn";
-  if (props2.currentPageName === props2.navBtn) {
+  if (props.currentPageName === props.navBtn) {
     classList2 = "nav-btn selected-route";
   }
   return /* @__PURE__ */ React$1.createElement("a", {
-    onClick: () => props2.changeRoute(props2.navBtn),
+    onClick: () => props.changeRoute(props.navBtn),
     className: classList2
-  }, props2.navBtn);
+  }, props.navBtn);
 }
-function Navbar(props2) {
+function Navbar(props) {
   let navBtns;
   const endpoint2 = getRestEndpoint();
-  if (props2.navBtns.length === 0) {
+  if (props.navBtns.length === 0) {
     navBtns = "";
   } else {
-    navBtns = props2.navBtns.map((route, index2) => /* @__PURE__ */ React$1.createElement(NavBtn, {
+    navBtns = props.navBtns.map((route, index2) => /* @__PURE__ */ React$1.createElement(NavBtn, {
       key: `nav-btn-${index2}`,
-      currentPageName: props2.currentPageName,
-      changeRoute: props2.changeRoute,
+      currentPageName: props.currentPageName,
+      changeRoute: props.changeRoute,
       navBtn: route.routeName
     }));
   }
@@ -18058,7 +18055,7 @@ function Navbar(props2) {
     className: "logout-section"
   }, /* @__PURE__ */ React$1.createElement("a", {
     className: "settings-btn",
-    onClick: props2.openSettings
+    onClick: props.openSettings
   }, "Settings"), "Logged in:\xA0", /* @__PURE__ */ React$1.createElement("span", null, localStorage.getItem("user")), /* @__PURE__ */ React$1.createElement("a", {
     className: "logout-btn",
     onClick: logoutWrapper
@@ -18104,9 +18101,9 @@ function _classCallCheck(instance, Constructor) {
     throw new TypeError("Cannot call a class as a function");
   }
 }
-function _defineProperties(target, props2) {
-  for (var i2 = 0; i2 < props2.length; i2++) {
-    var descriptor = props2[i2];
+function _defineProperties(target, props) {
+  for (var i2 = 0; i2 < props.length; i2++) {
+    var descriptor = props[i2];
     descriptor.enumerable = descriptor.enumerable || false;
     descriptor.configurable = true;
     if ("value" in descriptor)
@@ -18735,12 +18732,12 @@ function getTipContent(tip, children, getContent, multiline) {
     }, d2);
   });
 }
-function parseAria(props2) {
+function parseAria(props) {
   var ariaObj = {};
-  Object.keys(props2).filter(function(prop) {
+  Object.keys(props).filter(function(prop) {
     return /(^aria-\w+$|^role$)/.test(prop);
   }).forEach(function(prop) {
-    ariaObj[prop] = props2[prop];
+    ariaObj[prop] = props[prop];
   });
   return ariaObj;
 }
@@ -19523,14 +19520,14 @@ var ReactTooltip = staticMethods(_class = windowListener(_class = customEvent(_c
       };
     }
   }]);
-  function ReactTooltip2(props2) {
+  function ReactTooltip2(props) {
     var _this;
     _classCallCheck(this, ReactTooltip2);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ReactTooltip2).call(this, props2));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ReactTooltip2).call(this, props));
     _this.state = {
-      uuid: props2.uuid || generateUUID(),
-      place: props2.place || "top",
-      desiredPlace: props2.place || "top",
+      uuid: props.uuid || generateUUID(),
+      place: props.place || "top",
+      desiredPlace: props.place || "top",
       type: "dark",
       effect: "float",
       show: false,
@@ -19541,15 +19538,15 @@ var ReactTooltip = staticMethods(_class = windowListener(_class = customEvent(_c
       html: false,
       delayHide: 0,
       delayShow: 0,
-      event: props2.event || null,
-      eventOff: props2.eventOff || null,
+      event: props.event || null,
+      eventOff: props.eventOff || null,
       currentEvent: null,
       currentTarget: null,
-      ariaProps: parseAria(props2),
+      ariaProps: parseAria(props),
       isEmptyTip: false,
       disable: false,
-      possibleCustomEvents: props2.possibleCustomEvents || "",
-      possibleCustomEventsOff: props2.possibleCustomEventsOff || "",
+      possibleCustomEvents: props.possibleCustomEvents || "",
+      possibleCustomEventsOff: props.possibleCustomEventsOff || "",
       originTooltip: null,
       isMultiline: false
     };
@@ -20032,8 +20029,8 @@ var ReactTooltip = staticMethods(_class = windowListener(_class = customEvent(_c
     value: function getDerivedStateFromProps(nextProps, prevState) {
       var ariaProps = prevState.ariaProps;
       var newAriaProps = parseAria(nextProps);
-      var isChanged = Object.keys(newAriaProps).some(function(props2) {
-        return newAriaProps[props2] !== ariaProps[props2];
+      var isChanged = Object.keys(newAriaProps).some(function(props) {
+        return newAriaProps[props] !== ariaProps[props];
       });
       if (!isChanged) {
         return null;
@@ -21155,7 +21152,7 @@ if (Prism.languages.markup) {
 }
 Prism.languages.js = Prism.languages.javascript;
 var prism = "";
-function Settings(props2) {
+function Settings(props) {
   const [templateOptions, setTemplateOptions] = react.exports.useState([]);
   const [currentTemplateName, setCurrentTemplateName] = react.exports.useState(
     localStorage.getItem("templateName") ? localStorage.getItem("templateName") : "none"
@@ -21169,7 +21166,7 @@ function Settings(props2) {
   const [useDefaultTemplateState, setUseDefaultTemplateState] = react.exports.useState(
     localStorage.getItem("useDefaultTemplate")
   );
-  const endpoint2 = props2.endpoint;
+  const endpoint2 = props.endpoint;
   react.exports.useEffect(() => {
     initializeLoginSection();
     initializeTemplateSection();
@@ -21228,7 +21225,7 @@ function Settings(props2) {
     if (selectedTemplate !== "none") {
       localStorage.setItem("templateName", selectedTemplate);
       setCurrentTemplateName(selectedTemplate);
-      await props2.handleChangeTemplate();
+      await props.handleChangeTemplate();
       alert("Template Applied");
     }
   }
@@ -21271,7 +21268,7 @@ function Settings(props2) {
     let result = await response.text();
     setCurrentTemplateName(templateName);
     localStorage.setItem("defaultTemplate", templateName);
-    await props2.handleChangeTemplate();
+    await props.handleChangeTemplate();
     alert(result);
   }
   async function getDefaultTemplate() {
@@ -21477,7 +21474,7 @@ function Settings(props2) {
         alert("Error saving template");
       }
       if (currentTemplateName === currentEditTemplateName) {
-        props2.handleChangeTemplate();
+        props.handleChangeTemplate();
       }
       setIsRerender(true);
     }
@@ -21584,7 +21581,7 @@ function Settings(props2) {
       let templateName = localStorage.getItem("templateName");
       handleUncheckedDefaultBox(templateName, "false");
     }
-    await props2.handleChangeTemplate();
+    await props.handleChangeTemplate();
   }
   let serverList = [];
   {
