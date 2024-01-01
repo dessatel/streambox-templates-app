@@ -1,0 +1,92 @@
+[
+    {
+        "name": "Colorful Prod Template (Read-only)",
+        "size": 16513,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1678770351,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Dark-Encoder2",
+        "size": 18801,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1675747362,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Dark-Encoder2 (Read-only)",
+        "size": 21793,
+        "uid": 0,
+        "gid": 0,
+        "mtime": 1678770353,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Dark Prod Template (Multichannel Prototype)",
+        "size": 20491,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1678770347,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Dark Prod Template (Read-only)",
+        "size": 18219,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1678770338,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Light Prod Template (Read-only)",
+        "size": 16007,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1678770334,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Multiplex-v2",
+        "size": 22351,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1675296978,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Multiplex Production Light",
+        "size": 7438,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1675828911,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "serverControl",
+        "size": 19265,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1700677063,
+        "mode": 33188,
+        "modet": "100644"
+    },
+    {
+        "name": "Test123",
+        "size": 18867,
+        "uid": 33,
+        "gid": 33,
+        "mtime": 1678766635,
+        "mode": 33188,
+        "modet": "100644"
+    }
+]

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import App from "./App"
 import Navbar from "./components/Navbar"
 import Settings from "./Settings"
-import { isLocalDev, getRestEndpoint } from "./Utils"
+import { isLocalDev, getRestEndpoint,isDesktopApp,ExHost,GetJSON,PostJSON } from "./Utils"
 import testTemplate from "../public/DevTemplates/Dark-Encoder2 Dev.json"
 // import testTemplate from "../public/devTemplates/Multiplex Light Dev Template.json"
 const endpoint = getRestEndpoint()
@@ -43,7 +43,10 @@ export default function RootWrapper() {
     async function replaceJSVarsInTemplate(template) {
         let response
         let jsVariables
-        if (isLocalDev) {
+        if (isDesktopApp) {
+            response = await import(`/JSIncludes.js`);
+            jsVariables = response.jsVariables
+        } else if (isLocalDev || isDesktopApp) {
             response = await import(`${location.origin}/JSIncludes`)
             jsVariables = response.jsVariables
         } else {
@@ -72,6 +75,31 @@ export default function RootWrapper() {
                 ? localStorage.getItem("defaultTemplate")
                 : localStorage.getItem("templateName")
 
+         /*if (isDesktopApp) {
+                    let response = await fetch("/devTemplates/Dark Dev Template (Multichannel).json");
+                    console.log(response);
+                    let json = await response.json()
+                    //alert(response.status);
+                    //let formattedTemplate = json;
+                    let formattedTemplate = await replaceJSVarsInTemplate(json)
+
+
+                    setCurrentTemplate(JSON.stringify(formattedTemplate))
+                    setNavBtns(formattedTemplate.template.navbar.routes)
+
+                    if (isSettings) {
+                        setCurrentPageName("Settings")
+                    } else {
+                        setCurrentPageName(
+                            formattedTemplate.template.navbar.routes[0]
+                                .routeName
+                        )
+                    }
+                    setIsLoading(false)
+        }
+
+        if(! isDesktopApp)*/
+
         if (template) {
             if (isLocalDev) {
                 let json = testTemplate
@@ -84,10 +112,21 @@ export default function RootWrapper() {
                 setIsLoading(false)
             } else {
                 try {
-                    let response = await fetch(
-                        `${endpoint}/REST/templates/${template}`
-                    )
-                    let json = await response.json()
+
+                    let response;
+                    let url =   `${endpoint}/REST/templates/${template}`;
+
+                    // only if desktop app and no host  
+                    if (isDesktopApp && ExHost == "" ) {
+                       url =   `/templates/${template}`;
+                    }
+
+                    let json;
+
+                    //response = await Get(url);
+                    //json = await response.json()
+                    json = await GetJSON(url);
+                    
                     let formattedTemplate = await replaceJSVarsInTemplate(json)
 
                     setCurrentTemplate(JSON.stringify(formattedTemplate))

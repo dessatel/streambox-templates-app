@@ -52,3 +52,20 @@ Use the following scripts for deployment:
 ```
 
 Then follow the normal procedure in GitHub Pages and select the `gh-pages` branch.
+
+TAURI APP
+
+how to build:
+
+npm run bundle
+
+
+
+macOS Tauri implemenation, isDesktopApp - to use for macOS,  ExHost = "http://localhost" to access rest api via TAURI API
+PostJSON/GetJSON are functiosn that work around CORS issue
+
+
+When ExHost is defined , the App will use native Tauri calls to
+
+example to port forward 80 to 10.0.3.219 for RestAPI access
+sudo ssh -i ~/.ssh/id_rsa -L localhost:80:10.0.3.219:80 root@10.0.3.219

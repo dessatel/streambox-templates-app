@@ -17,9 +17,13 @@ import {
     setNetwork1Api,
     replaceJSONParams,
     getServerURL,
+    isDesktopApp,
+    ExHost,
+    GetJSON,
+    PostJSON
 } from "../Utils"
 
-const endpoint = location.origin
+ let endpoint = location.origin
 
 export default function Container(props) {
     //console.log("Container rendered")
@@ -50,7 +54,10 @@ export default function Container(props) {
     }
 
     async function applyPreset(pid, presetEndpoint) {
-        await POSTData(presetEndpoint, {
+        if (isDesktopApp && ExHost != "" ) {
+            presetEndpoint = ExHost+presetEndpoint; // could be remote app
+        }
+        await PostJSON(presetEndpoint, {
             command: "apply",
             pid: pid,
         }).then((data) => {
@@ -89,47 +96,73 @@ export default function Container(props) {
             }
         }
 
-        await POSTData(endpoint + postEndpoint, { val_list: arr }).then(
-            (data) => {
-                console.log(
-                    "Data POSTED to " +
-                        endpoint +
-                        postEndpoint +
-                        ": " +
-                        JSON.stringify(data)
-                )
-                alert("Changes have been applied")
-                localStorage.setItem("presetPID", "custom")
-                props.triggerBackgroundFetch()
-            }
-        )
+        if (isDesktopApp && ExHost != "" ) {
+            await PostJSON(ExHost + postEndpoint, { val_list: arr }).then(
+                (data) => {
+                    console.log(
+                        "Data POSTED to " +
+                            endpoint +
+                            postEndpoint +
+                            ": " +
+                            JSON.stringify(data)
+                    )
+                    alert("Changes have been applied")
+                    localStorage.setItem("presetPID", "custom")
+                    props.triggerBackgroundFetch()
+                }
+            )
+        }else{
+            await POSTData(endpoint + postEndpoint, { val_list: arr }).then(
+                (data) => {
+                    console.log(
+                        "Data POSTED to " +
+                            endpoint +
+                            postEndpoint +
+                            ": " +
+                            JSON.stringify(data)
+                    )
+                    alert("Changes have been applied")
+                    localStorage.setItem("presetPID", "custom")
+                    props.triggerBackgroundFetch()
+                }
+            )
+        }
     }
 
     async function startStreaming(btnPort, btnHost) {
         let response = ""
+        let metadataResult= ""
 
-        if (isLocalDev) {
+        let suf=".json";
+        if (isDesktopApp && ExHost != "" ) {
+            // could be remote app
+            endpoint = ExHost;
+            suf="";
+        }
+        if (isLocalDev || isDesktopApp) {
             if (btnPort !== undefined) {
                 if (btnHost !== undefined) {
-                    response = await fetch(
-                        btnHost + `/REST/encoder/${btnPort}/metadata.json`
+                    response = await GetJSON(
+                        btnHost + `/REST/encoder/${btnPort}/metadata`+suf
                     )
                 } else {
-                    response = await fetch(
-                        endpoint + `/REST/encoder/${btnPort}/metadata.json`
+                    response = await GetJSON(
+                        endpoint + `/REST/encoder/${btnPort}/metadata`+suf
                     )
                 }
             } else {
                 if (btnHost !== undefined) {
-                    response = await fetch(
-                        btnHost + "/REST/encoder/metadata.json"
+                    response = await GetJSON(
+                        btnHost + "/REST/encoder/metadata"+suf
                     )
                 } else {
-                    response = await fetch(
-                        endpoint + "/REST/encoder/metadata.json"
+                    response = await GetJSON(
+                        endpoint + "/REST/encoder/metadata"+suf
                     )
                 }
             }
+            metadataResult = response;
+
         } else {
             if (btnPort !== undefined) {
                 if (btnHost !== undefined) {
@@ -148,8 +181,11 @@ export default function Container(props) {
                     response = await fetch(endpoint + "/REST/encoder/metadata")
                 }
             }
+            metadataResult = await response.json()
         }
-        let metadataResult = await response.json()
+
+
+
 
         let networkObj = metadataResult.current_stat.filter(
             (res) => res.cname === "Meta_Network1"
@@ -162,6 +198,11 @@ export default function Container(props) {
         } else {
             tempEndpoint1 = "/REST/encoder/network"
         }
+        
+        if (isDesktopApp && ExHost != "" ) {
+            tempEndpoint1 = ExHost+tempEndpoint1; // could be remote app
+        }
+
 
         const apiDRM = networkObj[0]["val"]
         const apiServerIP = await getPropertyFromAPI(
@@ -178,10 +219,11 @@ export default function Container(props) {
             sessionDRM !== ""
         ) {
             if (sessionDRM !== apiDRM) {
+                let result = await confirm(
+                    "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
+                ) 
                 if (
-                    confirm(
-                        "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
-                    ) == true
+                    result == true
                 ) {
                     await setNetwork1Api(sessionDRM, btnPort, btnHost)
                 }
@@ -195,10 +237,12 @@ export default function Container(props) {
             sessionServerIP !== ""
         ) {
             if (sessionServerIP !== apiServerIP) {
+
+                let result = confirm(
+                    `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
+                )              
                 if (
-                    confirm(
-                        `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
-                    ) == true
+                    result == true   
                 ) {
                     await setDecoderIPToServerIP(
                         sessionServerIP,
@@ -220,12 +264,23 @@ export default function Container(props) {
         let tempFullEndpoint =
             (btnHost !== undefined ? btnHost : endpoint) + tempEndpoint2
 
-        await POSTData(tempFullEndpoint, {
-            action_list: ["start"],
-        }).then((data) => {
-            console.log("Streaming started" + JSON.stringify(data))
-            props.triggerBackgroundFetch()
-        })
+        if (isDesktopApp) {
+            await PostJSON(tempFullEndpoint, 
+                {
+                action_list: ["start"],
+                }
+            ).then((data) => {
+                console.log("Streaming started" + JSON.stringify(data))
+                props.triggerBackgroundFetch()
+            })
+        }else{
+            await POSTData(tempFullEndpoint, {
+                action_list: ["start"],
+            }).then((data) => {
+                console.log("Streaming started" + JSON.stringify(data))
+                props.triggerBackgroundFetch()
+            })
+        }
     }
 
     async function stopStreaming(btnPort, btnHost) {
@@ -237,15 +292,31 @@ export default function Container(props) {
             tempEndpoint = `/REST/encoder/action`
         }
 
-        await POSTData(
-            (btnHost !== undefined ? btnHost : endpoint) + tempEndpoint,
-            {
-                action_list: ["stop"],
-            }
-        ).then((data) => {
-            console.log("Streaming stopped" + JSON.stringify(data))
-            props.triggerBackgroundFetch()
-        })
+        if (isDesktopApp && ExHost != "" ) {
+            tempEndpoint = ExHost+tempEndpoint; // could be remote app
+        }
+        if (isDesktopApp) {
+
+            await PostJSON(
+                (btnHost !== undefined ? btnHost : "") + tempEndpoint,
+                {
+                    action_list: ["stop"],
+                }                
+            ).then((data) => {
+                console.log("Streaming stopped" + JSON.stringify(data))
+                props.triggerBackgroundFetch()
+            })
+        }else{
+            await POSTData(
+                (btnHost !== undefined ? btnHost : endpoint) + tempEndpoint,
+                {
+                    action_list: ["stop"],
+                }
+            ).then((data) => {
+                console.log("Streaming stopped" + JSON.stringify(data))
+                props.triggerBackgroundFetch()
+            })
+        }
     }
 
     function handleFieldTypes(field, index, fieldStyle) {

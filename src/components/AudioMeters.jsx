@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import SingleMeter from "./SingleMeter"
+import { GetJSON, isDesktopApp,ExHost} from "../Utils"
 
 export default React.memo(function AudioMeters({
     audioLevelRoute,
@@ -17,10 +18,17 @@ export default React.memo(function AudioMeters({
 
             const fetchData = async () => {
                 fullEndpoint = audioLevelRoute
+                /*
                 const response = await fetch(fullEndpoint, {
                     signal: cancelController.signal,
                 })
                 const json = await response.json()
+                */
+                if (isDesktopApp && ExHost != "" ) {
+                    // could be remote app
+                    fullEndpoint = ExHost+fullEndpoint
+                }
+                const json = await GetJSON(fullEndpoint);
                 const [, ...audioLevels] = json.current_stat[0].val.split(":")
                 const tempVUMeters = []
                 let count = 0

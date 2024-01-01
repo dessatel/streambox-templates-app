@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Select from "react-select"
 import DecoderInfo from "./DecoderInfo"
+
 import {
     debounce,
     setDecoderIPToServerIP,
@@ -11,6 +12,10 @@ import {
     getPropertyFromAPI,
     md5,
     getServerURL,
+    isDesktopApp,
+    ExHost,
+    GetJSON,
+    PostJSON
 } from "../Utils"
 import Modal from "react-modal"
 
@@ -314,10 +319,13 @@ export default function SessionsPanel(props) {
         alert(result)
 
         if ((await getStreamingStatus()) == 0) {
+            let metadataResult ;
+            let result = await confirm(
+                "Streaming is stopped. Would you like to start streaming?"
+            );
+            
             if (
-                confirm(
-                    "Streaming is stopped. Would you like to start streaming?"
-                ) == true
+                result == true
             ) {
                 let response = ""
                 if (isLocalDev) {
@@ -329,10 +337,18 @@ export default function SessionsPanel(props) {
                         route = "/REST/encoder/metadata.json"
                     }
 
-                    response = await fetch(
-                        (customHost !== undefined ? customHost : endpoint) +
-                            route
-                    )
+                    if (isDesktopApp && ExHost != "" ) { 
+                        route = ExHost+route; // could be remote app
+                        metadataResult = await GetJSON(route);
+
+                    }else{
+                        response = await fetch(
+                            (customHost !== undefined ? customHost : endpoint) +
+                                route
+                        )
+                        metadataResult = await response.json()
+                    }
+
                 } else {
                     let route = ""
 
@@ -342,12 +358,16 @@ export default function SessionsPanel(props) {
                         route = "/REST/encoder/metadata"
                     }
 
-                    response = await fetch(
-                        (customHost !== undefined ? customHost : endpoint) +
-                            route
-                    )
+                    let url =  (customHost !== undefined ? customHost : endpoint) +
+                    route;
+
+                    //response = await fetch( url )
+                    //metadataResult = await response.json()
+                    if (isDesktopApp && ExHost != "" ) {
+                        url = ExHost+route; // igmore custome endpoint
+                    }
+                    metadataResult = await  GetJSON(url);
                 }
-                let metadataResult = await response.json()
 
                 let networkObj = metadataResult.current_stat.filter(
                     (res) => res.cname === "Meta_Network1"
@@ -363,6 +383,11 @@ export default function SessionsPanel(props) {
                     temporaryRoute = "/REST/encoder/network"
                 }
 
+                if (isDesktopApp && ExHost != "" ) {
+                    temporaryRoute = ExHost+temporaryRoute; // could be remote app
+                }
+        
+
                 const apiServerIP = await getPropertyFromAPI(
                     "decoderIP",
                     temporaryRoute,
@@ -376,10 +401,11 @@ export default function SessionsPanel(props) {
                     localStorage.getItem("sessionDRM") !== ""
                 ) {
                     if (localStorage.getItem("sessionDRM") !== apiDRM) {
+                        let result = await confirm(
+                            "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
+                        ) 
                         if (
-                            confirm(
-                                "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
-                            ) == true
+                            result  == true
                         ) {
                             await setNetwork1Api(
                                 localStorage.getItem("sessionDRM"),
@@ -397,10 +423,11 @@ export default function SessionsPanel(props) {
                     sessionServerIP !== ""
                 ) {
                     if (sessionServerIP !== apiServerIP) {
+                        let result = await confirm(
+                            `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
+                        )
                         if (
-                            confirm(
-                                `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
-                            ) == true
+                             result == true
                         ) {
                             await setDecoderIPToServerIP(
                                 sessionServerIP,
@@ -419,8 +446,13 @@ export default function SessionsPanel(props) {
                     route = "/REST/encoder/action"
                 }
 
-                await POSTData(
-                    (customHost !== undefined ? customHost : endpoint) + route,
+                let url =  (customHost !== undefined ? customHost : endpoint) + route;
+                if (isDesktopApp && ExHost != "" ) {
+                    url = ExHost+route; // could be remote app
+                }
+                await PostJSON(
+                    
+                    url,
                     {
                         action_list: ["start"],
                     }

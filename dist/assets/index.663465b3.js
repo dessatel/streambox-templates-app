@@ -6954,119 +6954,1324 @@ const __vitePreload = function preload(baseModule, deps) {
     }
   })).then(() => baseModule());
 };
-var Video = React$1.memo(function Video2(props) {
-  console.log(props);
-  var img_tag = new Image();
-  let date = new Date().getTime();
-  let previewEndpoint;
-  let imageRefreshRate = 700;
-  let videoTimer;
-  react.exports.useEffect(() => {
-    videoTimer = setInterval(() => {
-      previewEndpoint = props.previewImageRoute + "?t=" + date++;
-      img_tag.onload = function() {
-        document.getElementById(
-          "video-preview"
-        ).style.backgroundImage = `url(${previewEndpoint})`;
-      };
-      img_tag.src = previewEndpoint;
-      return () => {
-        clearInterval(videoTimer);
-      };
-    }, imageRefreshRate);
-    return () => {
-      clearInterval(videoTimer);
-    };
-  }, []);
-  return /* @__PURE__ */ React$1.createElement("div", {
-    id: "video-preview",
-    className: "video"
+function uid$1() {
+  return window.crypto.getRandomValues(new Uint32Array(1))[0];
+}
+function transformCallback(callback, once2 = false) {
+  const identifier2 = uid$1();
+  const prop = `_${identifier2}`;
+  Object.defineProperty(window, prop, {
+    value: (result) => {
+      if (once2) {
+        Reflect.deleteProperty(window, prop);
+      }
+      return callback == null ? void 0 : callback(result);
+    },
+    writable: false,
+    configurable: true
   });
-});
-function Button(props) {
-  let button;
-  let action;
-  let styles2 = {};
-  let size = "";
-  if (props.size) {
-    if (props.size === "big") {
-      size = "big-button";
-    } else if (props.size === "giant") {
-      size = "giant-button";
-    } else if (props.size === "small") {
-      size = "small-button";
+  return identifier2;
+}
+async function invoke(cmd, args = {}) {
+  return new Promise((resolve, reject) => {
+    const callback = transformCallback((e2) => {
+      resolve(e2);
+      Reflect.deleteProperty(window, `_${error}`);
+    }, true);
+    const error = transformCallback((e2) => {
+      reject(e2);
+      Reflect.deleteProperty(window, `_${callback}`);
+    }, true);
+    window.__TAURI_IPC__({
+      cmd,
+      callback,
+      error,
+      ...args
+    });
+  });
+}
+async function invokeTauriCommand(command) {
+  return invoke("tauri", command);
+}
+var ResponseType;
+(function(ResponseType2) {
+  ResponseType2[ResponseType2["JSON"] = 1] = "JSON";
+  ResponseType2[ResponseType2["Text"] = 2] = "Text";
+  ResponseType2[ResponseType2["Binary"] = 3] = "Binary";
+})(ResponseType || (ResponseType = {}));
+async function formBody(data2) {
+  const form = {};
+  const append2 = async (key, v2) => {
+    if (v2 !== null) {
+      let r2;
+      if (typeof v2 === "string") {
+        r2 = v2;
+      } else if (v2 instanceof Uint8Array || Array.isArray(v2)) {
+        r2 = Array.from(v2);
+      } else if (v2 instanceof File) {
+        r2 = {
+          file: Array.from(new Uint8Array(await v2.arrayBuffer())),
+          mime: v2.type,
+          fileName: v2.name
+        };
+      } else if (typeof v2.file === "string") {
+        r2 = { file: v2.file, mime: v2.mime, fileName: v2.fileName };
+      } else {
+        r2 = { file: Array.from(v2.file), mime: v2.mime, fileName: v2.fileName };
+      }
+      form[String(key)] = r2;
     }
-  }
-  if (props.backgroundColor) {
-    styles2 = { backgroundColor: props.backgroundColor };
-  }
-  if (props.action === "toggleStreaming") {
-    if (props.label === "Start Streaming") {
-      action = "startStreaming";
-    } else if (props.label === "Stop Streaming") {
-      action = "stopStreaming";
-      styles2 = { backgroundColor: "#b71c1c", color: "white" };
-    }
-    button = /* @__PURE__ */ React$1.createElement("div", {
-      className: "giant-button-container"
-    }, /* @__PURE__ */ React$1.createElement("button", {
-      onClick: () => {
-        props.buttonPressed(
-          action,
-          null,
-          props.port,
-          props.host
-        );
-      },
-      className: "giant-button",
-      style: styles2
-    }, props.label));
-  } else if (props.action === "submitLocalForm") {
-    if (props.postEndpoint) {
-      button = /* @__PURE__ */ React$1.createElement("p", {
-        className: "fields"
-      }, /* @__PURE__ */ React$1.createElement("input", {
-        "data-postendpoint": props.postEndpoint,
-        style: styles2,
-        type: "submit",
-        value: props.label
-      }));
-    } else {
-      button = /* @__PURE__ */ React$1.createElement("p", {
-        className: "fields"
-      }, /* @__PURE__ */ React$1.createElement("span", {
-        className: "error-text"
-      }, "Post endpoint is missing in template is required for forms"));
-    }
-  } else if (props.action === "redirect") {
-    if (props.redirectURL !== void 0) {
-      button = /* @__PURE__ */ React$1.createElement("p", {
-        className: "fields"
-      }, /* @__PURE__ */ React$1.createElement("a", {
-        style: styles2,
-        className: size,
-        target: "_blank",
-        href: props.redirectURL
-      }, props.label));
-    } else {
-      button = /* @__PURE__ */ React$1.createElement("span", {
-        style: { color: "red", marginLeft: "30px" }
-      }, "A redirectURL parameter in the template is required for button redirect.");
+  };
+  if (data2 instanceof FormData) {
+    for (const [key, value] of data2) {
+      await append2(key, value);
     }
   } else {
-    button = /* @__PURE__ */ React$1.createElement("p", {
-      className: "fields"
-    }, /* @__PURE__ */ React$1.createElement("button", {
-      style: styles2,
-      className: size,
-      onClick: () => {
-        props.buttonPressed(props.action);
-      }
-    }, props.label));
+    for (const [key, value] of Object.entries(data2)) {
+      await append2(key, value);
+    }
   }
-  return button;
+  return form;
 }
-const endpoint$2 = location.origin;
+class Body {
+  constructor(type, payload) {
+    this.type = type;
+    this.payload = payload;
+  }
+  static form(data2) {
+    return new Body("Form", data2);
+  }
+  static json(data2) {
+    return new Body("Json", data2);
+  }
+  static text(value) {
+    return new Body("Text", value);
+  }
+  static bytes(bytes) {
+    return new Body("Bytes", Array.from(bytes instanceof ArrayBuffer ? new Uint8Array(bytes) : bytes));
+  }
+}
+class Response {
+  constructor(response) {
+    this.url = response.url;
+    this.status = response.status;
+    this.ok = this.status >= 200 && this.status < 300;
+    this.headers = response.headers;
+    this.rawHeaders = response.rawHeaders;
+    this.data = response.data;
+  }
+}
+class Client {
+  constructor(id2) {
+    this.id = id2;
+  }
+  async drop() {
+    return invokeTauriCommand({
+      __tauriModule: "Http",
+      message: {
+        cmd: "dropClient",
+        client: this.id
+      }
+    });
+  }
+  async request(options2) {
+    var _a;
+    const jsonResponse = !options2.responseType || options2.responseType === ResponseType.JSON;
+    if (jsonResponse) {
+      options2.responseType = ResponseType.Text;
+    }
+    if (((_a = options2.body) == null ? void 0 : _a.type) === "Form") {
+      options2.body.payload = await formBody(options2.body.payload);
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Http",
+      message: {
+        cmd: "httpRequest",
+        client: this.id,
+        options: options2
+      }
+    }).then((res) => {
+      const response = new Response(res);
+      if (jsonResponse) {
+        try {
+          response.data = JSON.parse(response.data);
+        } catch (e2) {
+          if (response.ok && response.data === "") {
+            response.data = {};
+          } else if (response.ok) {
+            throw Error(`Failed to parse response \`${response.data}\` as JSON: ${e2};
+              try setting the \`responseType\` option to \`ResponseType.Text\` or \`ResponseType.Binary\` if the API does not return a JSON response.`);
+          }
+        }
+        return response;
+      }
+      return response;
+    });
+  }
+  async get(url, options2) {
+    return this.request({
+      method: "GET",
+      url,
+      ...options2
+    });
+  }
+  async post(url, body, options2) {
+    return this.request({
+      method: "POST",
+      url,
+      body,
+      ...options2
+    });
+  }
+  async put(url, body, options2) {
+    return this.request({
+      method: "PUT",
+      url,
+      body,
+      ...options2
+    });
+  }
+  async patch(url, options2) {
+    return this.request({
+      method: "PATCH",
+      url,
+      ...options2
+    });
+  }
+  async delete(url, options2) {
+    return this.request({
+      method: "DELETE",
+      url,
+      ...options2
+    });
+  }
+}
+async function getClient(options2) {
+  return invokeTauriCommand({
+    __tauriModule: "Http",
+    message: {
+      cmd: "createClient",
+      options: options2
+    }
+  }).then((id2) => new Client(id2));
+}
+let defaultClient = null;
+async function fetch$1(url, options2) {
+  var _a;
+  if (defaultClient === null) {
+    defaultClient = await getClient();
+  }
+  return defaultClient.request({
+    url,
+    method: (_a = options2 == null ? void 0 : options2.method) != null ? _a : "GET",
+    ...options2
+  });
+}
+async function _unlisten(event, eventId) {
+  return invokeTauriCommand({
+    __tauriModule: "Event",
+    message: {
+      cmd: "unlisten",
+      event,
+      eventId
+    }
+  });
+}
+async function emit(event, windowLabel, payload) {
+  await invokeTauriCommand({
+    __tauriModule: "Event",
+    message: {
+      cmd: "emit",
+      event,
+      windowLabel,
+      payload
+    }
+  });
+}
+async function listen(event, windowLabel, handler) {
+  return invokeTauriCommand({
+    __tauriModule: "Event",
+    message: {
+      cmd: "listen",
+      event,
+      windowLabel,
+      handler: transformCallback(handler)
+    }
+  }).then((eventId) => {
+    return async () => _unlisten(event, eventId);
+  });
+}
+async function once(event, windowLabel, handler) {
+  return listen(event, windowLabel, (eventData) => {
+    handler(eventData);
+    _unlisten(event, eventData.id).catch(() => {
+    });
+  });
+}
+var TauriEvent;
+(function(TauriEvent2) {
+  TauriEvent2["WINDOW_RESIZED"] = "tauri://resize";
+  TauriEvent2["WINDOW_MOVED"] = "tauri://move";
+  TauriEvent2["WINDOW_CLOSE_REQUESTED"] = "tauri://close-requested";
+  TauriEvent2["WINDOW_CREATED"] = "tauri://window-created";
+  TauriEvent2["WINDOW_DESTROYED"] = "tauri://destroyed";
+  TauriEvent2["WINDOW_FOCUS"] = "tauri://focus";
+  TauriEvent2["WINDOW_BLUR"] = "tauri://blur";
+  TauriEvent2["WINDOW_SCALE_FACTOR_CHANGED"] = "tauri://scale-change";
+  TauriEvent2["WINDOW_THEME_CHANGED"] = "tauri://theme-changed";
+  TauriEvent2["WINDOW_FILE_DROP"] = "tauri://file-drop";
+  TauriEvent2["WINDOW_FILE_DROP_HOVER"] = "tauri://file-drop-hover";
+  TauriEvent2["WINDOW_FILE_DROP_CANCELLED"] = "tauri://file-drop-cancelled";
+  TauriEvent2["MENU"] = "tauri://menu";
+  TauriEvent2["CHECK_UPDATE"] = "tauri://update";
+  TauriEvent2["UPDATE_AVAILABLE"] = "tauri://update-available";
+  TauriEvent2["INSTALL_UPDATE"] = "tauri://update-install";
+  TauriEvent2["STATUS_UPDATE"] = "tauri://update-status";
+  TauriEvent2["DOWNLOAD_PROGRESS"] = "tauri://update-download-progress";
+})(TauriEvent || (TauriEvent = {}));
+var BaseDirectory;
+(function(BaseDirectory2) {
+  BaseDirectory2[BaseDirectory2["Audio"] = 1] = "Audio";
+  BaseDirectory2[BaseDirectory2["Cache"] = 2] = "Cache";
+  BaseDirectory2[BaseDirectory2["Config"] = 3] = "Config";
+  BaseDirectory2[BaseDirectory2["Data"] = 4] = "Data";
+  BaseDirectory2[BaseDirectory2["LocalData"] = 5] = "LocalData";
+  BaseDirectory2[BaseDirectory2["Desktop"] = 6] = "Desktop";
+  BaseDirectory2[BaseDirectory2["Document"] = 7] = "Document";
+  BaseDirectory2[BaseDirectory2["Download"] = 8] = "Download";
+  BaseDirectory2[BaseDirectory2["Executable"] = 9] = "Executable";
+  BaseDirectory2[BaseDirectory2["Font"] = 10] = "Font";
+  BaseDirectory2[BaseDirectory2["Home"] = 11] = "Home";
+  BaseDirectory2[BaseDirectory2["Picture"] = 12] = "Picture";
+  BaseDirectory2[BaseDirectory2["Public"] = 13] = "Public";
+  BaseDirectory2[BaseDirectory2["Runtime"] = 14] = "Runtime";
+  BaseDirectory2[BaseDirectory2["Template"] = 15] = "Template";
+  BaseDirectory2[BaseDirectory2["Video"] = 16] = "Video";
+  BaseDirectory2[BaseDirectory2["Resource"] = 17] = "Resource";
+  BaseDirectory2[BaseDirectory2["App"] = 18] = "App";
+  BaseDirectory2[BaseDirectory2["Log"] = 19] = "Log";
+  BaseDirectory2[BaseDirectory2["Temp"] = 20] = "Temp";
+  BaseDirectory2[BaseDirectory2["AppConfig"] = 21] = "AppConfig";
+  BaseDirectory2[BaseDirectory2["AppData"] = 22] = "AppData";
+  BaseDirectory2[BaseDirectory2["AppLocalData"] = 23] = "AppLocalData";
+  BaseDirectory2[BaseDirectory2["AppCache"] = 24] = "AppCache";
+  BaseDirectory2[BaseDirectory2["AppLog"] = 25] = "AppLog";
+})(BaseDirectory || (BaseDirectory = {}));
+function isWindows$1() {
+  return navigator.appVersion.includes("Win");
+}
+isWindows$1() ? "\\" : "/";
+isWindows$1() ? ";" : ":";
+class LogicalSize {
+  constructor(width, height) {
+    this.type = "Logical";
+    this.width = width;
+    this.height = height;
+  }
+}
+class PhysicalSize {
+  constructor(width, height) {
+    this.type = "Physical";
+    this.width = width;
+    this.height = height;
+  }
+  toLogical(scaleFactor) {
+    return new LogicalSize(this.width / scaleFactor, this.height / scaleFactor);
+  }
+}
+class LogicalPosition {
+  constructor(x2, y2) {
+    this.type = "Logical";
+    this.x = x2;
+    this.y = y2;
+  }
+}
+class PhysicalPosition {
+  constructor(x2, y2) {
+    this.type = "Physical";
+    this.x = x2;
+    this.y = y2;
+  }
+  toLogical(scaleFactor) {
+    return new LogicalPosition(this.x / scaleFactor, this.y / scaleFactor);
+  }
+}
+var UserAttentionType;
+(function(UserAttentionType2) {
+  UserAttentionType2[UserAttentionType2["Critical"] = 1] = "Critical";
+  UserAttentionType2[UserAttentionType2["Informational"] = 2] = "Informational";
+})(UserAttentionType || (UserAttentionType = {}));
+function getAll() {
+  return window.__TAURI_METADATA__.__windows.map((w2) => new WebviewWindow(w2.label, {
+    skip: true
+  }));
+}
+const localTauriEvents = ["tauri://created", "tauri://error"];
+class WebviewWindowHandle {
+  constructor(label) {
+    this.label = label;
+    this.listeners = /* @__PURE__ */ Object.create(null);
+  }
+  async listen(event, handler) {
+    if (this._handleTauriEvent(event, handler)) {
+      return Promise.resolve(() => {
+        const listeners = this.listeners[event];
+        listeners.splice(listeners.indexOf(handler), 1);
+      });
+    }
+    return listen(event, this.label, handler);
+  }
+  async once(event, handler) {
+    if (this._handleTauriEvent(event, handler)) {
+      return Promise.resolve(() => {
+        const listeners = this.listeners[event];
+        listeners.splice(listeners.indexOf(handler), 1);
+      });
+    }
+    return once(event, this.label, handler);
+  }
+  async emit(event, payload) {
+    if (localTauriEvents.includes(event)) {
+      for (const handler of this.listeners[event] || []) {
+        handler({ event, id: -1, windowLabel: this.label, payload });
+      }
+      return Promise.resolve();
+    }
+    return emit(event, this.label, payload);
+  }
+  _handleTauriEvent(event, handler) {
+    if (localTauriEvents.includes(event)) {
+      if (!(event in this.listeners)) {
+        this.listeners[event] = [handler];
+      } else {
+        this.listeners[event].push(handler);
+      }
+      return true;
+    }
+    return false;
+  }
+}
+class WindowManager extends WebviewWindowHandle {
+  async scaleFactor() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "scaleFactor"
+          }
+        }
+      }
+    });
+  }
+  async innerPosition() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "innerPosition"
+          }
+        }
+      }
+    }).then(({ x: x2, y: y2 }) => new PhysicalPosition(x2, y2));
+  }
+  async outerPosition() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "outerPosition"
+          }
+        }
+      }
+    }).then(({ x: x2, y: y2 }) => new PhysicalPosition(x2, y2));
+  }
+  async innerSize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "innerSize"
+          }
+        }
+      }
+    }).then(({ width, height }) => new PhysicalSize(width, height));
+  }
+  async outerSize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "outerSize"
+          }
+        }
+      }
+    }).then(({ width, height }) => new PhysicalSize(width, height));
+  }
+  async isFullscreen() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isFullscreen"
+          }
+        }
+      }
+    });
+  }
+  async isMinimized() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isMinimized"
+          }
+        }
+      }
+    });
+  }
+  async isMaximized() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isMaximized"
+          }
+        }
+      }
+    });
+  }
+  async isFocused() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isFocused"
+          }
+        }
+      }
+    });
+  }
+  async isDecorated() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isDecorated"
+          }
+        }
+      }
+    });
+  }
+  async isResizable() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isResizable"
+          }
+        }
+      }
+    });
+  }
+  async isMaximizable() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isMaximizable"
+          }
+        }
+      }
+    });
+  }
+  async isMinimizable() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isMinimizable"
+          }
+        }
+      }
+    });
+  }
+  async isClosable() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isClosable"
+          }
+        }
+      }
+    });
+  }
+  async isVisible() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "isVisible"
+          }
+        }
+      }
+    });
+  }
+  async title() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "title"
+          }
+        }
+      }
+    });
+  }
+  async theme() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "theme"
+          }
+        }
+      }
+    });
+  }
+  async center() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "center"
+          }
+        }
+      }
+    });
+  }
+  async requestUserAttention(requestType) {
+    let requestType_ = null;
+    if (requestType) {
+      if (requestType === UserAttentionType.Critical) {
+        requestType_ = { type: "Critical" };
+      } else {
+        requestType_ = { type: "Informational" };
+      }
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "requestUserAttention",
+            payload: requestType_
+          }
+        }
+      }
+    });
+  }
+  async setResizable(resizable) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setResizable",
+            payload: resizable
+          }
+        }
+      }
+    });
+  }
+  async setMaximizable(maximizable) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setMaximizable",
+            payload: maximizable
+          }
+        }
+      }
+    });
+  }
+  async setMinimizable(minimizable) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setMinimizable",
+            payload: minimizable
+          }
+        }
+      }
+    });
+  }
+  async setClosable(closable) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setClosable",
+            payload: closable
+          }
+        }
+      }
+    });
+  }
+  async setTitle(title) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setTitle",
+            payload: title
+          }
+        }
+      }
+    });
+  }
+  async maximize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "maximize"
+          }
+        }
+      }
+    });
+  }
+  async unmaximize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "unmaximize"
+          }
+        }
+      }
+    });
+  }
+  async toggleMaximize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "toggleMaximize"
+          }
+        }
+      }
+    });
+  }
+  async minimize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "minimize"
+          }
+        }
+      }
+    });
+  }
+  async unminimize() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "unminimize"
+          }
+        }
+      }
+    });
+  }
+  async show() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "show"
+          }
+        }
+      }
+    });
+  }
+  async hide() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "hide"
+          }
+        }
+      }
+    });
+  }
+  async close() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "close"
+          }
+        }
+      }
+    });
+  }
+  async setDecorations(decorations) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setDecorations",
+            payload: decorations
+          }
+        }
+      }
+    });
+  }
+  async setAlwaysOnTop(alwaysOnTop) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setAlwaysOnTop",
+            payload: alwaysOnTop
+          }
+        }
+      }
+    });
+  }
+  async setContentProtected(protected_) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setContentProtected",
+            payload: protected_
+          }
+        }
+      }
+    });
+  }
+  async setSize(size) {
+    if (!size || size.type !== "Logical" && size.type !== "Physical") {
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setSize",
+            payload: {
+              type: size.type,
+              data: {
+                width: size.width,
+                height: size.height
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  async setMinSize(size) {
+    if (size && size.type !== "Logical" && size.type !== "Physical") {
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setMinSize",
+            payload: size ? {
+              type: size.type,
+              data: {
+                width: size.width,
+                height: size.height
+              }
+            } : null
+          }
+        }
+      }
+    });
+  }
+  async setMaxSize(size) {
+    if (size && size.type !== "Logical" && size.type !== "Physical") {
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setMaxSize",
+            payload: size ? {
+              type: size.type,
+              data: {
+                width: size.width,
+                height: size.height
+              }
+            } : null
+          }
+        }
+      }
+    });
+  }
+  async setPosition(position2) {
+    if (!position2 || position2.type !== "Logical" && position2.type !== "Physical") {
+      throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setPosition",
+            payload: {
+              type: position2.type,
+              data: {
+                x: position2.x,
+                y: position2.y
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  async setFullscreen(fullscreen) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setFullscreen",
+            payload: fullscreen
+          }
+        }
+      }
+    });
+  }
+  async setFocus() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setFocus"
+          }
+        }
+      }
+    });
+  }
+  async setIcon(icon) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setIcon",
+            payload: {
+              icon: typeof icon === "string" ? icon : Array.from(icon)
+            }
+          }
+        }
+      }
+    });
+  }
+  async setSkipTaskbar(skip) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setSkipTaskbar",
+            payload: skip
+          }
+        }
+      }
+    });
+  }
+  async setCursorGrab(grab) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setCursorGrab",
+            payload: grab
+          }
+        }
+      }
+    });
+  }
+  async setCursorVisible(visible) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setCursorVisible",
+            payload: visible
+          }
+        }
+      }
+    });
+  }
+  async setCursorIcon(icon) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setCursorIcon",
+            payload: icon
+          }
+        }
+      }
+    });
+  }
+  async setCursorPosition(position2) {
+    if (!position2 || position2.type !== "Logical" && position2.type !== "Physical") {
+      throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
+    }
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setCursorPosition",
+            payload: {
+              type: position2.type,
+              data: {
+                x: position2.x,
+                y: position2.y
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  async setIgnoreCursorEvents(ignore) {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "setIgnoreCursorEvents",
+            payload: ignore
+          }
+        }
+      }
+    });
+  }
+  async startDragging() {
+    return invokeTauriCommand({
+      __tauriModule: "Window",
+      message: {
+        cmd: "manage",
+        data: {
+          label: this.label,
+          cmd: {
+            type: "startDragging"
+          }
+        }
+      }
+    });
+  }
+  async onResized(handler) {
+    return this.listen(TauriEvent.WINDOW_RESIZED, (e2) => {
+      e2.payload = mapPhysicalSize(e2.payload);
+      handler(e2);
+    });
+  }
+  async onMoved(handler) {
+    return this.listen(TauriEvent.WINDOW_MOVED, (e2) => {
+      e2.payload = mapPhysicalPosition(e2.payload);
+      handler(e2);
+    });
+  }
+  async onCloseRequested(handler) {
+    return this.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, (event) => {
+      const evt = new CloseRequestedEvent(event);
+      void Promise.resolve(handler(evt)).then(() => {
+        if (!evt.isPreventDefault()) {
+          return this.close();
+        }
+      });
+    });
+  }
+  async onFocusChanged(handler) {
+    const unlistenFocus = await this.listen(TauriEvent.WINDOW_FOCUS, (event) => {
+      handler({ ...event, payload: true });
+    });
+    const unlistenBlur = await this.listen(TauriEvent.WINDOW_BLUR, (event) => {
+      handler({ ...event, payload: false });
+    });
+    return () => {
+      unlistenFocus();
+      unlistenBlur();
+    };
+  }
+  async onScaleChanged(handler) {
+    return this.listen(TauriEvent.WINDOW_SCALE_FACTOR_CHANGED, handler);
+  }
+  async onMenuClicked(handler) {
+    return this.listen(TauriEvent.MENU, handler);
+  }
+  async onFileDropEvent(handler) {
+    const unlistenFileDrop = await this.listen(TauriEvent.WINDOW_FILE_DROP, (event) => {
+      handler({ ...event, payload: { type: "drop", paths: event.payload } });
+    });
+    const unlistenFileHover = await this.listen(TauriEvent.WINDOW_FILE_DROP_HOVER, (event) => {
+      handler({ ...event, payload: { type: "hover", paths: event.payload } });
+    });
+    const unlistenCancel = await this.listen(TauriEvent.WINDOW_FILE_DROP_CANCELLED, (event) => {
+      handler({ ...event, payload: { type: "cancel" } });
+    });
+    return () => {
+      unlistenFileDrop();
+      unlistenFileHover();
+      unlistenCancel();
+    };
+  }
+  async onThemeChanged(handler) {
+    return this.listen(TauriEvent.WINDOW_THEME_CHANGED, handler);
+  }
+}
+class CloseRequestedEvent {
+  constructor(event) {
+    this._preventDefault = false;
+    this.event = event.event;
+    this.windowLabel = event.windowLabel;
+    this.id = event.id;
+  }
+  preventDefault() {
+    this._preventDefault = true;
+  }
+  isPreventDefault() {
+    return this._preventDefault;
+  }
+}
+class WebviewWindow extends WindowManager {
+  constructor(label, options2 = {}) {
+    super(label);
+    if (!(options2 == null ? void 0 : options2.skip)) {
+      invokeTauriCommand({
+        __tauriModule: "Window",
+        message: {
+          cmd: "createWebview",
+          data: {
+            options: {
+              label,
+              ...options2
+            }
+          }
+        }
+      }).then(async () => this.emit("tauri://created")).catch(async (e2) => this.emit("tauri://error", e2));
+    }
+  }
+  static getByLabel(label) {
+    if (getAll().some((w2) => w2.label === label)) {
+      return new WebviewWindow(label, { skip: true });
+    }
+    return null;
+  }
+  static async getFocusedWindow() {
+    for (const w2 of getAll()) {
+      if (await w2.isFocused()) {
+        return w2;
+      }
+    }
+    return null;
+  }
+}
+if ("__TAURI_METADATA__" in window) {
+  new WebviewWindow(window.__TAURI_METADATA__.__currentWindow.label, {
+    skip: true
+  });
+} else {
+  console.warn(`Could not find "window.__TAURI_METADATA__". The "appWindow" value will reference the "main" window label.
+Note that this is not an issue if running this frontend on a browser instead of a Tauri window.`);
+  new WebviewWindow("main", {
+    skip: true
+  });
+}
+function mapPhysicalPosition(m2) {
+  return new PhysicalPosition(m2.x, m2.y);
+}
+function mapPhysicalSize(m2) {
+  return new PhysicalSize(m2.width, m2.height);
+}
+isWindows$1() ? "\r\n" : "\n";
+let isDesktopApp = true;
+let ExHost = "http://localhost";
+let endpoint$2 = location.origin;
+async function PostJSON(url = "", data2 = {}) {
+  {
+    let formData = new FormData();
+    formData.append("c", JSON.stringify(data2));
+    const response2 = await fetch$1(url, {
+      method: "POST",
+      body: Body.form(formData),
+      timeout: 30,
+      responseType: ResponseType.JSON
+    });
+    return response2.data;
+  }
+}
+async function GetJSON(url, delay = 30) {
+  let json, response;
+  {
+    try {
+      const client = await getClient();
+      response = await client.get(url, {
+        timeout: 30,
+        responseType: ResponseType.JSON
+      });
+    } catch (err) {
+      "There was a problem retrieving lis of templates:" + err.message;
+      return "[]";
+    }
+    json = await response.data;
+  }
+  return json;
+}
 function getServerURL() {
   let postfix2 = localStorage.getItem("customServerPostfix") === null ? "" : localStorage.getItem("customServerPostfix");
   return localStorage.getItem("cloudServer") + postfix2;
@@ -7100,28 +8305,32 @@ async function setDecoderIPToServerIP(sessionServerIP, customPort, customHost) {
   } else {
     tempEndpoint = "/REST/encoder/network";
   }
-  await POSTData(
-    (customHost !== void 0 ? customHost : endpoint$2) + tempEndpoint,
-    {
-      val_list: [{ cname: "decoderIP", val: sessionServerIP }]
-    }
-  ).then((data2) => {
-    console.log(
-      "Data POSTED to " + endpoint$2 + tempEndpoint + ": " + JSON.stringify(data2)
-    );
-  });
+  {
+    tempEndpoint = ExHost + tempEndpoint;
+  }
+  {
+    await PostJSON(
+      (customHost !== void 0 ? customHost : "") + tempEndpoint,
+      {
+        val_list: [{ cname: "decoderIP", val: sessionServerIP }]
+      }
+    ).then((data2) => {
+      console.log(
+        "Data POSTED to " + endpoint$2 + tempEndpoint + ": " + JSON.stringify(data2)
+      );
+    });
+  }
 }
 async function getPropertyFromAPI(cname, route, customHost) {
   let response = "";
   {
     if (customHost !== void 0) {
-      response = await fetch(customHost + route);
+      response = await GetJSON(customHost + route);
     } else {
-      response = await fetch(endpoint$2 + route);
+      response = await GetJSON(route);
     }
+    return response.current_stat.filter((obj) => obj.cname === cname)[0].val;
   }
-  let result = await response.json();
-  return result.current_stat.filter((obj) => obj.cname === cname)[0].val;
 }
 async function POSTData(url = "", data2 = {}) {
   let formData = new FormData();
@@ -7134,17 +8343,21 @@ async function POSTData(url = "", data2 = {}) {
 }
 async function getStreamingStatus() {
   let streamingStatusResponse = "";
+  let streamStatusResult = "";
   {
-    streamingStatusResponse = await fetch(endpoint$2 + "/REST/encoder/status");
+    streamingStatusResponse = await GetJSON(endpoint$2 + "/REST/encoder/status");
+    streamStatusResult = streamingStatusResponse;
   }
-  let streamStatusResult = await streamingStatusResponse.json();
   return streamStatusResult.current_stat.filter(
     (obj) => obj.cname === "isStreaming"
   )[0].val;
 }
 function getRestEndpoint() {
   {
-    return location.origin;
+    {
+      endpoint$2 = ExHost;
+      return ExHost;
+    }
   }
 }
 async function logout() {
@@ -7155,15 +8368,9 @@ async function logout() {
   window.location = `login.html`;
 }
 async function authenticate() {
-  let response = await fetch("../REST/sys/auth", {
-    method: "POST"
-  });
-  if (response.status == 200) {
-    console.log("Authorized");
+  {
+    console.log("Desktop App Authorized");
     return 1;
-  } else {
-    console.log("NOT Authorized");
-    return 0;
   }
 }
 async function setNetwork1Api(enc_key, customPort, customHost) {
@@ -7173,8 +8380,12 @@ async function setNetwork1Api(enc_key, customPort, customHost) {
   } else {
     tempEndpoint = "/REST/encoder/metadata";
   }
-  await POSTData(
-    (customHost !== void 0 ? customHost : endpoint$2) + tempEndpoint,
+  let url = (customHost !== void 0 ? customHost : endpoint$2) + tempEndpoint;
+  {
+    url = ExHost + tempEndpoint;
+  }
+  await PostJSON(
+    url,
     {
       val_list: [{ cname: "Meta_Network1", val: enc_key }]
     }
@@ -7377,6 +8588,121 @@ async function attemptLogin() {
   let parsedXML = xmlDoc.getElementsByTagName("body")[0];
   return parsedXML.getAttribute("result");
 }
+var Video = React$1.memo(function Video2(props) {
+  console.log(props);
+  var img_tag = new Image();
+  let date = new Date().getTime();
+  let previewEndpoint;
+  let imageRefreshRate = 700;
+  let videoTimer;
+  react.exports.useEffect(() => {
+    videoTimer = setInterval(() => {
+      previewEndpoint = props.previewImageRoute + "?t=" + date++;
+      {
+        previewEndpoint = ExHost + props.previewImageRoute + "?t=" + date++;
+      }
+      img_tag.onload = function() {
+        document.getElementById(
+          "video-preview"
+        ).style.backgroundImage = `url(${previewEndpoint})`;
+      };
+      img_tag.src = previewEndpoint;
+      return () => {
+        clearInterval(videoTimer);
+      };
+    }, imageRefreshRate);
+    return () => {
+      clearInterval(videoTimer);
+    };
+  }, []);
+  return /* @__PURE__ */ React$1.createElement("div", {
+    id: "video-preview",
+    className: "video"
+  });
+});
+function Button(props) {
+  let button;
+  let action;
+  let styles2 = {};
+  let size = "";
+  if (props.size) {
+    if (props.size === "big") {
+      size = "big-button";
+    } else if (props.size === "giant") {
+      size = "giant-button";
+    } else if (props.size === "small") {
+      size = "small-button";
+    }
+  }
+  if (props.backgroundColor) {
+    styles2 = { backgroundColor: props.backgroundColor };
+  }
+  if (props.action === "toggleStreaming") {
+    if (props.label === "Start Streaming") {
+      action = "startStreaming";
+    } else if (props.label === "Stop Streaming") {
+      action = "stopStreaming";
+      styles2 = { backgroundColor: "#b71c1c", color: "white" };
+    }
+    button = /* @__PURE__ */ React$1.createElement("div", {
+      className: "giant-button-container"
+    }, /* @__PURE__ */ React$1.createElement("button", {
+      onClick: () => {
+        props.buttonPressed(
+          action,
+          null,
+          props.port,
+          props.host
+        );
+      },
+      className: "giant-button",
+      style: styles2
+    }, props.label));
+  } else if (props.action === "submitLocalForm") {
+    if (props.postEndpoint) {
+      button = /* @__PURE__ */ React$1.createElement("p", {
+        className: "fields"
+      }, /* @__PURE__ */ React$1.createElement("input", {
+        "data-postendpoint": props.postEndpoint,
+        style: styles2,
+        type: "submit",
+        value: props.label
+      }));
+    } else {
+      button = /* @__PURE__ */ React$1.createElement("p", {
+        className: "fields"
+      }, /* @__PURE__ */ React$1.createElement("span", {
+        className: "error-text"
+      }, "Post endpoint is missing in template is required for forms"));
+    }
+  } else if (props.action === "redirect") {
+    if (props.redirectURL !== void 0) {
+      button = /* @__PURE__ */ React$1.createElement("p", {
+        className: "fields"
+      }, /* @__PURE__ */ React$1.createElement("a", {
+        style: styles2,
+        className: size,
+        target: "_blank",
+        href: props.redirectURL
+      }, props.label));
+    } else {
+      button = /* @__PURE__ */ React$1.createElement("span", {
+        style: { color: "red", marginLeft: "30px" }
+      }, "A redirectURL parameter in the template is required for button redirect.");
+    }
+  } else {
+    button = /* @__PURE__ */ React$1.createElement("p", {
+      className: "fields"
+    }, /* @__PURE__ */ React$1.createElement("button", {
+      style: styles2,
+      className: size,
+      onClick: () => {
+        props.buttonPressed(props.action);
+      }
+    }, props.label));
+  }
+  return button;
+}
 var Input$1 = React$1.memo(function Input2(props) {
   return /* @__PURE__ */ React$1.createElement("div", {
     className: "input-div"
@@ -7573,13 +8899,13 @@ var AudioMeter = React$1.memo(function AudioMeters({
   let fullEndpoint;
   react.exports.useEffect(() => {
     let audioIntervalTimer = setInterval(() => {
-      let cancelController = new AbortController();
+      new AbortController();
       const fetchData = async () => {
         fullEndpoint = audioLevelRoute;
-        const response = await fetch(fullEndpoint, {
-          signal: cancelController.signal
-        });
-        const json = await response.json();
+        {
+          fullEndpoint = ExHost + fullEndpoint;
+        }
+        const json = await GetJSON(fullEndpoint);
         const [, ...audioLevels] = json.current_stat[0].val.split(":");
         const tempVUMeters = [];
         let count = 0;
@@ -14310,10 +15636,11 @@ function SessionsPanel(props) {
     let result = await response.text();
     alert(result);
     if (await getStreamingStatus() == 0) {
-      if (confirm(
+      let metadataResult;
+      let result2 = await confirm(
         "Streaming is stopped. Would you like to start streaming?"
-      ) == true) {
-        let response2 = "";
+      );
+      if (result2 == true) {
         {
           let route2 = "";
           if (customPort !== void 0) {
@@ -14321,11 +15648,12 @@ function SessionsPanel(props) {
           } else {
             route2 = "/REST/encoder/metadata";
           }
-          response2 = await fetch(
-            (customHost !== void 0 ? customHost : endpoint2) + route2
-          );
+          let url2 = (customHost !== void 0 ? customHost : endpoint2) + route2;
+          {
+            url2 = ExHost + route2;
+          }
+          metadataResult = await GetJSON(url2);
         }
-        let metadataResult = await response2.json();
         let networkObj = metadataResult.current_stat.filter(
           (res) => res.cname === "Meta_Network1"
         );
@@ -14336,6 +15664,9 @@ function SessionsPanel(props) {
         } else {
           temporaryRoute = "/REST/encoder/network";
         }
+        {
+          temporaryRoute = ExHost + temporaryRoute;
+        }
         const apiServerIP = await getPropertyFromAPI(
           "decoderIP",
           temporaryRoute,
@@ -14344,9 +15675,10 @@ function SessionsPanel(props) {
         const sessionServerIP = localStorage.getItem("sessionServerIP");
         if (localStorage.getItem("sessionDRM") !== void 0 && localStorage.getItem("sessionDRM") !== null && localStorage.getItem("sessionDRM") !== "") {
           if (localStorage.getItem("sessionDRM") !== apiDRM) {
-            if (confirm(
+            let result3 = await confirm(
               "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
-            ) == true) {
+            );
+            if (result3 == true) {
               await setNetwork1Api(
                 localStorage.getItem("sessionDRM"),
                 customPort,
@@ -14357,9 +15689,10 @@ function SessionsPanel(props) {
         }
         if (sessionServerIP !== void 0 && sessionServerIP !== null && sessionServerIP !== "") {
           if (sessionServerIP !== apiServerIP) {
-            if (confirm(
+            let result3 = await confirm(
               `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
-            ) == true) {
+            );
+            if (result3 == true) {
               await setDecoderIPToServerIP(
                 sessionServerIP,
                 customPort,
@@ -14374,8 +15707,12 @@ function SessionsPanel(props) {
         } else {
           route = "/REST/encoder/action";
         }
-        await POSTData(
-          (customHost !== void 0 ? customHost : endpoint2) + route,
+        let url = (customHost !== void 0 ? customHost : endpoint2) + route;
+        {
+          url = ExHost + route;
+        }
+        await PostJSON(
+          url,
           {
             action_list: ["start"]
           }
@@ -14841,7 +16178,7 @@ var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
       if (parser.trackPosition) {
         parser.position = parser.line = parser.column = 0;
       }
-      emit(parser, "onready");
+      emit2(parser, "onready");
     }
     if (!Object.create) {
       Object.create = function(o) {
@@ -15340,18 +16677,18 @@ var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
       sax2.STATE[sax2.STATE[s]] = s;
     }
     S2 = sax2.STATE;
-    function emit(parser, event, data2) {
+    function emit2(parser, event, data2) {
       parser[event] && parser[event](data2);
     }
     function emitNode(parser, nodeType, data2) {
       if (parser.textNode)
         closeText(parser);
-      emit(parser, nodeType, data2);
+      emit2(parser, nodeType, data2);
     }
     function closeText(parser) {
       parser.textNode = textopts(parser.opt, parser.textNode);
       if (parser.textNode)
-        emit(parser, "ontext", parser.textNode);
+        emit2(parser, "ontext", parser.textNode);
       parser.textNode = "";
     }
     function textopts(opt, text) {
@@ -15368,7 +16705,7 @@ var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
       }
       er = new Error(er);
       parser.error = er;
-      emit(parser, "onerror", er);
+      emit2(parser, "onerror", er);
       return parser;
     }
     function end(parser) {
@@ -15380,7 +16717,7 @@ var require$$0 = /* @__PURE__ */ getAugmentedNamespace(__viteBrowserExternal$1);
       closeText(parser);
       parser.c = "";
       parser.closed = true;
-      emit(parser, "onend");
+      emit2(parser, "onend");
       SAXParser.call(parser, parser.strict, parser.opt);
       return parser;
     }
@@ -17210,7 +18547,7 @@ function ServerControl(props) {
     url: DATA_USAGE_URL
   })));
 }
-const endpoint$1 = location.origin;
+let endpoint$1 = location.origin;
 function Container(props) {
   const container = props.container;
   const apiObj = props.apiObj;
@@ -17235,7 +18572,10 @@ function Container(props) {
     }
   }
   async function applyPreset(pid, presetEndpoint) {
-    await POSTData(presetEndpoint, {
+    {
+      presetEndpoint = ExHost + presetEndpoint;
+    }
+    await PostJSON(presetEndpoint, {
       command: "apply",
       pid
     }).then((data2) => {
@@ -17267,39 +18607,51 @@ function Container(props) {
         postEndpoint = field.dataset.postendpoint;
       }
     }
-    await POSTData(endpoint$1 + postEndpoint, { val_list: arr }).then(
-      (data2) => {
-        console.log(
-          "Data POSTED to " + endpoint$1 + postEndpoint + ": " + JSON.stringify(data2)
-        );
-        alert("Changes have been applied");
-        localStorage.setItem("presetPID", "custom");
-        props.triggerBackgroundFetch();
-      }
-    );
+    {
+      await PostJSON(ExHost + postEndpoint, { val_list: arr }).then(
+        (data2) => {
+          console.log(
+            "Data POSTED to " + endpoint$1 + postEndpoint + ": " + JSON.stringify(data2)
+          );
+          alert("Changes have been applied");
+          localStorage.setItem("presetPID", "custom");
+          props.triggerBackgroundFetch();
+        }
+      );
+    }
   }
   async function startStreaming(btnPort, btnHost) {
     let response = "";
+    let metadataResult = "";
+    let suf = ".json";
+    {
+      endpoint$1 = ExHost;
+      suf = "";
+    }
     {
       if (btnPort !== void 0) {
         if (btnHost !== void 0) {
-          response = await fetch(
-            btnHost + `/REST/encoder/${btnPort}/metadata`
+          response = await GetJSON(
+            btnHost + `/REST/encoder/${btnPort}/metadata` + suf
           );
         } else {
-          response = await fetch(
-            endpoint$1 + `/REST/encoder/${btnPort}/metadata`
+          response = await GetJSON(
+            endpoint$1 + `/REST/encoder/${btnPort}/metadata` + suf
           );
         }
       } else {
         if (btnHost !== void 0) {
-          response = await fetch(btnHost + "/REST/encoder/metadata");
+          response = await GetJSON(
+            btnHost + "/REST/encoder/metadata" + suf
+          );
         } else {
-          response = await fetch(endpoint$1 + "/REST/encoder/metadata");
+          response = await GetJSON(
+            endpoint$1 + "/REST/encoder/metadata" + suf
+          );
         }
       }
+      metadataResult = response;
     }
-    let metadataResult = await response.json();
     let networkObj = metadataResult.current_stat.filter(
       (res) => res.cname === "Meta_Network1"
     );
@@ -17308,6 +18660,9 @@ function Container(props) {
       tempEndpoint1 = `/REST/encoder/${btnPort}/network`;
     } else {
       tempEndpoint1 = "/REST/encoder/network";
+    }
+    {
+      tempEndpoint1 = ExHost + tempEndpoint1;
     }
     const apiDRM = networkObj[0]["val"];
     const apiServerIP = await getPropertyFromAPI(
@@ -17319,18 +18674,20 @@ function Container(props) {
     const sessionDRM = localStorage.getItem("sessionDRM");
     if (sessionDRM !== void 0 && sessionDRM !== null && sessionDRM !== "") {
       if (sessionDRM !== apiDRM) {
-        if (confirm(
+        let result = await confirm(
           "There is a mismatch between the session DRM and DRM on the encoder.  Would you like to set the encoder DRM to the session DRM?"
-        ) == true) {
+        );
+        if (result == true) {
           await setNetwork1Api(sessionDRM, btnPort, btnHost);
         }
       }
     }
     if (sessionServerIP !== void 0 && sessionServerIP !== null && sessionServerIP !== "") {
       if (sessionServerIP !== apiServerIP) {
-        if (confirm(
+        let result = confirm(
           `Decoder IP is not set to the correct server IP (${sessionServerIP}). Do you want to set this?`
-        ) == true) {
+        );
+        if (result == true) {
           await setDecoderIPToServerIP(
             sessionServerIP,
             btnPort,
@@ -17346,12 +18703,17 @@ function Container(props) {
       tempEndpoint2 = "/REST/encoder/action";
     }
     let tempFullEndpoint = (btnHost !== void 0 ? btnHost : endpoint$1) + tempEndpoint2;
-    await POSTData(tempFullEndpoint, {
-      action_list: ["start"]
-    }).then((data2) => {
-      console.log("Streaming started" + JSON.stringify(data2));
-      props.triggerBackgroundFetch();
-    });
+    {
+      await PostJSON(
+        tempFullEndpoint,
+        {
+          action_list: ["start"]
+        }
+      ).then((data2) => {
+        console.log("Streaming started" + JSON.stringify(data2));
+        props.triggerBackgroundFetch();
+      });
+    }
   }
   async function stopStreaming(btnPort, btnHost) {
     let tempEndpoint = "";
@@ -17360,15 +18722,20 @@ function Container(props) {
     } else {
       tempEndpoint = `/REST/encoder/action`;
     }
-    await POSTData(
-      (btnHost !== void 0 ? btnHost : endpoint$1) + tempEndpoint,
-      {
-        action_list: ["stop"]
-      }
-    ).then((data2) => {
-      console.log("Streaming stopped" + JSON.stringify(data2));
-      props.triggerBackgroundFetch();
-    });
+    {
+      tempEndpoint = ExHost + tempEndpoint;
+    }
+    {
+      await PostJSON(
+        (btnHost !== void 0 ? btnHost : "") + tempEndpoint,
+        {
+          action_list: ["stop"]
+        }
+      ).then((data2) => {
+        console.log("Streaming stopped" + JSON.stringify(data2));
+        props.triggerBackgroundFetch();
+      });
+    }
   }
   function handleFieldTypes(field, index2, fieldStyle2) {
     let filteredStat;
@@ -17743,7 +19110,6 @@ function App(props) {
         return;
       }
       let fullEndpoint;
-      let response;
       let jsonResult;
       startTimer();
       for (let sources of apiSrcs2) {
@@ -17758,8 +19124,10 @@ function App(props) {
                 templateVariables
               );
               fullEndpoint = source;
-              response = await fetch(fullEndpoint);
-              jsonResult = await response.json();
+              {
+                fullEndpoint = ExHost + source;
+              }
+              jsonResult = await GetJSON(fullEndpoint);
               if (jsonResult.current_stat) {
                 tempObj.current_stat = [
                   ...tempObj.current_stat,
@@ -17776,8 +19144,10 @@ function App(props) {
               templateVariables
             );
             try {
-              response = await fetch(fullEndpoint);
-              jsonResult = await response.json();
+              if (isDesktopApp && ExHost != "") {
+                fullEndpoint = ExHost + fullEndpoint;
+              }
+              jsonResult = await GetJSON(fullEndpoint);
               combinedApiArray.push(jsonResult);
             } catch (err) {
               alert(
@@ -17883,10 +19253,11 @@ function App(props) {
   async function createNewSession() {
     let encKey = "";
     if (await getStreamingStatus() == 1) {
-      if (confirm(
+      let result = await confirm(
         "In order to create a new session, the current streaming session needs to be stopped.  Is this okay?"
-      ) == true) {
-        await POSTData(endpoint2 + "/REST/encoder/action", {
+      );
+      if (result == true) {
+        await PostJSON(endpoint2 + "/REST/encoder/action", {
           action_list: ["stop"]
         }).then((data2) => {
           console.log("Streaming stopped" + JSON.stringify(data2));
@@ -17900,6 +19271,9 @@ function App(props) {
       var sessionName = prompt(
         "What would you like to name your session? (For email purposes)"
       );
+      {
+        sessionName = "Spectra Session";
+      }
       if (sessionName === null || sessionName === void 0 || sessionName === "") {
         alert(
           "Session name cannot be blank.  Please click 'Create New Session' again."
@@ -17996,7 +19370,7 @@ function NavBtn(props) {
 }
 function Navbar(props) {
   let navBtns;
-  const endpoint2 = getRestEndpoint();
+  getRestEndpoint();
   if (props.navBtns.length === 0) {
     navBtns = "";
   } else {
@@ -18012,9 +19386,9 @@ function Navbar(props) {
     let pngPromise;
     let jpgPromise;
     {
-      svgPromise = fetch(endpoint2 + "/sbuiauth/logo/logo.svg");
-      pngPromise = fetch(endpoint2 + "/sbuiauth/logo/logo.png");
-      jpgPromise = fetch(endpoint2 + "/sbuiauth/logo/logo.jpg");
+      svgPromise = fetch("/images/logo.svg");
+      pngPromise = fetch("/images/logo/logo.png");
+      jpgPromise = fetch("/images/logo/logo.jpg");
     }
     let [svgRes, pngRes, jpgRes] = await Promise.all([
       svgPromise,
@@ -18024,7 +19398,7 @@ function Navbar(props) {
     const logo = document.querySelector(".logo");
     let endpointString;
     {
-      endpointString = endpoint2 + "/sbuiauth/logo/";
+      endpointString = "/images/";
     }
     if (svgRes.statusText === "OK") {
       logo.src = endpointString + "logo.svg";
@@ -21166,7 +22540,10 @@ function Settings(props) {
   const [useDefaultTemplateState, setUseDefaultTemplateState] = react.exports.useState(
     localStorage.getItem("useDefaultTemplate")
   );
-  const endpoint2 = props.endpoint;
+  let endpoint2 = props.endpoint;
+  {
+    endpoint2 = ExHost;
+  }
   react.exports.useEffect(() => {
     initializeLoginSection();
     initializeTemplateSection();
@@ -21185,16 +22562,8 @@ function Settings(props) {
       setIsRerender(false);
     }
     const fetchData = async () => {
-      let response = "";
-      try {
-        response = await fetch(`${endpoint2}/REST/templates/_list`);
-      } catch (err) {
-        alert(
-          "There was a problem retrieving templates from the server."
-        );
-        return;
-      }
-      let json = await response.json();
+      let url = `${endpoint2}/REST/templates/_list`;
+      let json = await GetJSON(url);
       if (currentTemplateName === "none" && json && json.length > 0) {
         alert(
           "No template is selected.  Please choose one and apply the template."
@@ -21395,9 +22764,10 @@ function Settings(props) {
     setCurrentTemplateName(template);
   }
   async function deleteTemplate() {
-    if (confirm(
+    let result = await confirm(
       "Are you sure you want to delete " + currentEditTemplateName
-    )) {
+    );
+    if (result) {
       let response = await fetch(
         `${endpoint2}/REST/templates/${currentEditTemplateName}`,
         {
@@ -21425,15 +22795,9 @@ function Settings(props) {
     const selectedTemplate = e2.target[0].value;
     if (selectedTemplate !== "none") {
       setCreateDisabled(false);
-      let response = await fetch(
-        `${endpoint2}/REST/templates/${selectedTemplate}`
-      );
       let json;
-      try {
-        json = await response.json();
-      } catch (e22) {
-        setCodeValue("This JSON file is not formatted correctly");
-        return;
+      {
+        json = await GetJSON(`${endpoint2}/REST/templates/${selectedTemplate}`);
       }
       const prettyJson = JSON.stringify(json, void 0, 2);
       document.getElementById("template-area").style.display = "flex";
@@ -21868,7 +23232,7 @@ function RootWrapper() {
     let response;
     let jsVariables;
     {
-      response = await __vitePreload(() => import(`${location.origin}/${location.pathname}/JSIncludes.js`), true ? [] : void 0);
+      response = await __vitePreload(() => import("./JSIncludes.3c017267.js"), true ? [] : void 0);
       jsVariables = response.jsVariables;
     }
     let jsVarsObjEntries = Object.entries(jsVariables);
@@ -21885,10 +23249,12 @@ function RootWrapper() {
     if (template) {
       {
         try {
-          let response = await fetch(
-            `${endpoint}/REST/templates/${template}`
-          );
-          let json = await response.json();
+          let response;
+          let url = `${endpoint}/REST/templates/${template}`;
+          if (isDesktopApp && ExHost == "")
+            ;
+          let json;
+          json = await GetJSON(url);
           let formattedTemplate = await replaceJSVarsInTemplate(json);
           setCurrentTemplate(JSON.stringify(formattedTemplate));
           setNavBtns(formattedTemplate.template.navbar.routes);

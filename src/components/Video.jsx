@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react"
+import { isLocalDev, md5, attemptLogin, debounce, getServerURL,isDesktopApp,ExHost,PostJSON } from "../Utils"
+
 
 export default React.memo(function Video(props) {
     console.log(props)
@@ -10,6 +12,13 @@ export default React.memo(function Video(props) {
     useEffect(() => {
         videoTimer = setInterval(() => {
             previewEndpoint = props.previewImageRoute + "?t=" + date++
+
+            if (isDesktopApp && ExHost != "" ) {
+                // could be remote app
+                previewEndpoint = ExHost+props.previewImageRoute + "?t=" + date++
+            }
+
+
             img_tag.onload = function () {
                 document.getElementById(
                     "video-preview"

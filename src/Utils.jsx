@@ -1,12 +1,73 @@
 //set environment: true - local development, false - production
 export let isLocalDev = false
-const endpoint = location.origin
+export let isDesktopApp = true
+//export let ExHost = "";
+export let ExHost = "http://localhost";
+//export let ExHost = "http://10.0.3.219"
+import { getClient, ResponseType, Body } from '@tauri-apps/api/http';
+import { http } from '@tauri-apps/api';
+
+
+let endpoint = location.origin
 
 // //JS Variables that template files will use
 // export const jsVariables = {
 //     JS_HOST: endpoint,
 //     JS_PORT: "1880",
 // }
+
+
+export async function PostJSON(url = "", data = {}) 
+{
+
+    let response ;
+    if (isDesktopApp) {
+              let formData = new FormData();
+              formData.append("c", JSON.stringify(data));
+          
+              const response = await http.fetch(url, {
+                method: "POST",
+                body: http.Body.form(formData),
+                timeout: 30, // seconds
+                responseType: ResponseType.JSON
+                // headers: { 'Content-Type': 'multipart/form-data' } is not needed
+              });
+              return response.data;
+ 
+    }else  return POSTData(url, data);
+    return response;
+}
+
+
+export async function GetJSON(url, delay = 30) {
+    let json,response ;
+    if (isDesktopApp) {
+        try {
+             const client = await getClient();
+             response = await client.get(url, {
+                timeout: 30,
+                // the expected response type
+                responseType: ResponseType.JSON
+              });      
+        } catch (err) {
+            "There was a problem retrieving lis of templates:"+err.message
+            return "[]";
+        }
+        json=await response.data;
+    }else{
+        try {
+            response = await fetch(url)
+        }catch (err) {
+            alert(
+               "There was a problem retrieving lis of templates:"+err.message
+           )
+           return "[]";
+        }
+        json = await response.json()
+    }
+    return json;
+}
+
 
 export function getServerURL() {
 	let postfix = (localStorage.getItem("customServerPostfix")===null) ? "" : localStorage.getItem("customServerPostfix");
@@ -50,28 +111,59 @@ export async function setDecoderIPToServerIP(
         tempEndpoint = "/REST/encoder/network"
     }
 
-    await POSTData(
-        (customHost !== undefined ? customHost : endpoint) + tempEndpoint,
-        {
-            val_list: [{ cname: "decoderIP", val: sessionServerIP }],
-        }
-    ).then((data) => {
-        console.log(
-            "Data POSTED to " +
-                endpoint +
-                tempEndpoint +
-                ": " +
-                JSON.stringify(data)
-        )
-    })
+    if (isDesktopApp && ExHost != "" ) {
+        // could be remote app
+        tempEndpoint = ExHost+tempEndpoint
+    }
+
+    if (isDesktopApp) {
+        await PostJSON(
+            (customHost !== undefined ? customHost : "") + tempEndpoint,
+            {
+                val_list: [{ cname: "decoderIP", val: sessionServerIP }],
+            }
+        ).then((data) => {
+            console.log(
+                "Data POSTED to " +
+                    endpoint +
+                    tempEndpoint +
+                    ": " +
+                    JSON.stringify(data)
+            )
+        })
+    }else{
+        await POSTData(
+            (customHost !== undefined ? customHost : endpoint) + tempEndpoint,
+            {
+                val_list: [{ cname: "decoderIP", val: sessionServerIP }],
+            }
+        ).then((data) => {
+            console.log(
+                "Data POSTED to " +
+                    endpoint +
+                    tempEndpoint +
+                    ": " +
+                    JSON.stringify(data)
+            )
+        })
+    }
 }
 
 //get decoder ip from api side
 export async function getPropertyFromAPI(cname, route, customHost) {
     let response = ""
-    if (isLocalDev) {
+
+    if (isDesktopApp){
         if (customHost !== undefined) {
-            response = await fetch(customHost + route + ".json")
+            response = await GetJSON(customHost + route)
+        } else {
+            response = await GetJSON(/*endpoint +*/ route)
+        }
+        return response.current_stat.filter((obj) => obj.cname === cname)[0].val
+        
+    } else if (isLocalDev) {
+        if (customHost !== undefined) {
+            response = await fetch(customHost + route)
         } else {
             response = await fetch(endpoint + route + ".json")
         }
@@ -99,15 +191,25 @@ export async function POSTData(url = "", data = {}) {
 //return 1 means streaming return 0 means not streaming
 export async function getStreamingStatus() {
     let streamingStatusResponse = ""
-    if (isLocalDev) {
-        streamingStatusResponse = await fetch(
-            endpoint + "/REST/encoder/status.json"
-        )
-    } else {
-        streamingStatusResponse = await fetch(endpoint + "/REST/encoder/status")
-    }
+    let streamStatusResult = ""
+    
+    if (isDesktopApp && ExHost != "")
+     {
+        streamingStatusResponse = await GetJSON(endpoint + "/REST/encoder/status")
+        streamStatusResult = streamingStatusResponse; // is JSON already!
+    }else 
+    
+    {
+        if (isLocalDev) {
+            streamingStatusResponse = await fetch(
+                endpoint + "/REST/encoder/status.json"
+            )
+        } else {
+            streamingStatusResponse = await fetch(endpoint + "/REST/encoder/status")
+        }
 
-    let streamStatusResult = await streamingStatusResponse.json()
+         streamStatusResult = await streamingStatusResponse.json()
+    }
 
     return streamStatusResult.current_stat.filter(
         (obj) => obj.cname === "isStreaming"
@@ -115,6 +217,13 @@ export async function getStreamingStatus() {
 }
 
 export function getRestEndpoint() {
+    if (isDesktopApp) {
+        if (isDesktopApp && ExHost != "" ) {
+            endpoint = ExHost; // could be remote app
+            return ExHost;
+        }
+        return location.origin;
+    }else
     if (isLocalDev) {
         const hostname = "10.0.3.219"
         //moving port number
@@ -146,6 +255,10 @@ export async function logout() {
 //logout should destroy local storage for userid and token
 export async function authenticate() {
 
+    if (isDesktopApp)   {
+        console.log("Desktop App Authorized");
+        return 1;
+    }
     let response = await fetch("../REST/sys/auth", {
         method: "POST"
     })
@@ -172,8 +285,15 @@ export async function setNetwork1Api(enc_key, customPort, customHost) {
         tempEndpoint = "/REST/encoder/metadata"
     }
 
-    await POSTData(
-        (customHost !== undefined ? customHost : endpoint) + tempEndpoint,
+    let url =  (customHost !== undefined ? customHost : endpoint) + tempEndpoint;
+
+    if (isDesktopApp && ExHost != "" ) {
+        // could be remote app
+        url = ExHost+tempEndpoint
+    }
+
+    await PostJSON(
+        url,
         {
             val_list: [{ cname: "Meta_Network1", val: enc_key }],
         }

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react"
 import "./styles/setting-style.css"
 import ReactTooltip from "react-tooltip"
-import { isLocalDev, md5, attemptLogin, debounce, getServerURL } from "./Utils"
+import { getClient, ResponseType } from '@tauri-apps/api/http';
+
+import { isLocalDev, md5, attemptLogin, debounce, getServerURL,isDesktopApp,ExHost,GetJSON,PostJSON } from "./Utils"
 
 import Editor from "react-simple-code-editor"
 import { highlight, languages } from "prismjs/components/prism-core"
@@ -25,7 +27,11 @@ export default function Settings(props) {
     const [useDefaultTemplateState, setUseDefaultTemplateState] = useState(
         localStorage.getItem("useDefaultTemplate")
     )
-    const endpoint = props.endpoint
+    let endpoint = props.endpoint
+
+    if (isDesktopApp && ExHost != "" ) {
+        endpoint = ExHost; // could be remote app
+    }
 
     //check if any url params present for userid
     //if no url params passed in, check if local storage set with these vals
@@ -53,15 +59,36 @@ export default function Settings(props) {
 
         const fetchData = async () => {
             let response = ""
-            try {
-                response = await fetch(`${endpoint}/REST/templates/_list`)
-            } catch (err) {
-                alert(
-                    "There was a problem retrieving templates from the server."
-                )
-                return
-            }
-            let json = await response.json()
+
+
+            let url = `${endpoint}/REST/templates/_list`;    
+
+            let json = await GetJSON(url);
+            /*
+                if (isDesktopApp) {
+                    try {
+                        const client = await getClient();
+                         response = await client.get(url, {
+                            timeout: 30,
+                            // the expected response type
+                            responseType: ResponseType.JSON
+                          });      
+                    } catch (err) {
+                        "There was a problem retrieving lis of templates:"+err.message
+                    }
+                    json=response.data;
+                }else{
+                    try {
+                        response = await fetch(url)
+                    }catch (err) {
+                        alert(
+                           "There was a problem retrieving lis of templates:"+err.message
+                       )
+                       return;
+                    }
+                    json = await response.json()
+                }
+            */
             if (currentTemplateName === "none" && json && json.length > 0) {
                 alert(
                     "No template is selected.  Please choose one and apply the template."
@@ -347,10 +374,11 @@ export default function Settings(props) {
     }
 
     async function deleteTemplate() {
+        let result = await confirm(
+            "Are you sure you want to delete " + currentEditTemplateName
+        )
         if (
-            confirm(
-                "Are you sure you want to delete " + currentEditTemplateName
-            )
+            result
         ) {
             let response = await fetch(
                 `${endpoint}/REST/templates/${currentEditTemplateName}`,
@@ -388,18 +416,28 @@ export default function Settings(props) {
         const selectedTemplate = e.target[0].value
         if (selectedTemplate !== "none") {
             setCreateDisabled(false)
-            let response = await fetch(
-                `${endpoint}/REST/templates/${selectedTemplate}`
-            )
-            let json
-            try {
-                json = await response.json()
-            } catch (e) {
-                // document.querySelector(".edit-template-area").value =
-                //     "This JSON file is not formatted correctly"
 
-                setCodeValue("This JSON file is not formatted correctly")
-                return
+            let json;
+
+            if (isDesktopApp && ExHost != "" ) {
+
+                json = await GetJSON(`${endpoint}/REST/templates/${selectedTemplate}`);
+
+            }else{
+            
+                let response = await fetch(
+                    `${endpoint}/REST/templates/${selectedTemplate}`
+                )
+
+                try {
+                    json = await response.json()
+                } catch (e) {
+                    // document.querySelector(".edit-template-area").value =
+                    //     "This JSON file is not formatted correctly"
+
+                    setCodeValue("This JSON file is not formatted correctly")
+                    return
+                }
             }
             const prettyJson = JSON.stringify(json, undefined, 2)
             document.getElementById("template-area").style.display = "flex"

@@ -5,12 +5,15 @@ import {
     authenticate,
     getStreamingStatus,
     isLocalDev,
+    isDesktopApp,
     setNetwork1Api,
     replaceJSONParams,
     getServerURL,
+    ExHost,GetJSON,PostJSON
 } from "./Utils"
 import { POSTData } from "./Utils"
 
+import { invoke } from '@tauri-apps/api'
 
 
 export default function App(props) {
@@ -116,8 +119,15 @@ export default function App(props) {
                             fullEndpoint = source
                             // }
 
-                            response = await fetch(fullEndpoint)
-                            jsonResult = await response.json()
+                            if (isDesktopApp && ExHost != "" ) {
+                                // could be remote app
+                                fullEndpoint = ExHost+source
+                            }
+
+                            //response = await fetch(fullEndpoint)
+                            //jsonResult = await response.json()
+
+                            jsonResult = await GetJSON(fullEndpoint);
 
                             if (jsonResult.current_stat) {
                                 tempObj.current_stat = [
@@ -136,8 +146,15 @@ export default function App(props) {
                             templateVariables
                         )
                         try {
-                            response = await fetch(fullEndpoint)
-                            jsonResult = await response.json()
+                            //response = await fetch(fullEndpoint)
+                            //jsonResult = await response.json()
+
+                            if (isDesktopApp && ExHost != "" ) {
+                                // could be remote app
+                                fullEndpoint = ExHost+fullEndpoint
+                            }
+
+                            jsonResult = await GetJSON(fullEndpoint);
                             combinedApiArray.push(jsonResult)
                         } catch (err) {
                             alert(
@@ -270,12 +287,13 @@ export default function App(props) {
     async function createNewSession() {
         let encKey = ""
         if ((await getStreamingStatus()) == 1) {
+            let result =   await confirm(
+                "In order to create a new session, the current streaming session needs to be stopped.  Is this okay?"
+            ) 
             if (
-                confirm(
-                    "In order to create a new session, the current streaming session needs to be stopped.  Is this okay?"
-                ) == true
+                result == true
             ) {
-                await POSTData(endpoint + "/REST/encoder/action", {
+                await PostJSON(endpoint + "/REST/encoder/action", {
                     action_list: ["stop"],
                 }).then((data) => {
                     console.log("Streaming stopped" + JSON.stringify(data))
@@ -292,6 +310,10 @@ export default function App(props) {
                 "What would you like to name your session? (For email purposes)"
             )
 
+            if (isDesktopApp) {
+                // tauri does not support prompt
+                sessionName = "Spectra Session";
+            }
             if (
                 sessionName === null ||
                 sessionName === undefined ||

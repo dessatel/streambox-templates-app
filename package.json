@@ -1,22 +1,30 @@
 {
     "name": "streambox-templates-app",
-    "proxy": "http://localhost:5005",
+    "proxy": "http://10.0.3.219/",
     "version": "0.1.0",
     "description": "",
     "license": "MIT",
     "scripts": {
-        "start": "vite",
+        "Xstart": "vite",
+        "Xbuild": "vite build --no-minify",
+        "tauri": "tauri",
+        "bundle": "tauri build --debug",
+        "dev": "tauri dev",
         "build": "vite build --no-minify"
     },
     "dependencies": {
+        "@tauri-apps/api": "^1.5.3",
+        "cors": "^2.8.5",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-modal": "^3.16.1",
         "react-select": "^5.6.0",
         "react-tooltip": "^4.2.21",
-        "uniq": "^1.0.1"
+        "uniq": "^1.0.1",
+        "xml-js": "^1.6.11"
     },
     "devDependencies": {
+        "@tauri-apps/cli": "^1.5.9",
         "babel-preset-nano-react-app": "^0.1.0",
         "json-loader": "^0.5.7",
         "nanoid": "^4.0.0",

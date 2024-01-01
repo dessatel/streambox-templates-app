@@ -1,6 +1,6 @@
 import React from "react"
 import NavBtn from "./Navbtn"
-import { isLocalDev, logout, getRestEndpoint } from "../Utils"
+import { isLocalDev, logout, getRestEndpoint,isDesktopApp } from "../Utils"
 
 export default function Navbar(props) {
     let navBtns
@@ -24,7 +24,7 @@ export default function Navbar(props) {
         let pngPromise
         let jpgPromise
 
-        if (isLocalDev) {
+        if (isLocalDev || isDesktopApp) {
             svgPromise = fetch("/images/logo.svg")
             pngPromise = fetch("/images/logo/logo.png")
             jpgPromise = fetch("/images/logo/logo.jpg")
@@ -33,6 +33,9 @@ export default function Navbar(props) {
             pngPromise = fetch(endpoint + "/sbuiauth/logo/logo.png")
             jpgPromise = fetch(endpoint + "/sbuiauth/logo/logo.jpg")
         }
+
+    //    svgPromise = fetch(endpoint + "/sbuiauth/logo/logo.svg")
+
         let [svgRes, pngRes, jpgRes] = await Promise.all([
             svgPromise,
             pngPromise,
@@ -42,7 +45,7 @@ export default function Navbar(props) {
         const logo = document.querySelector(".logo")
         let endpointString
 
-        if (isLocalDev) {
+        if (isLocalDev || isDesktopApp) {
             endpointString = "/images/"
         } else {
             endpointString = endpoint + "/sbuiauth/logo/"
